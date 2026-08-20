@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ranking — Novelatam{% endblock %}
+{% block meta_description %}Descubre las mejores novelas y las más leídas de Novelatam.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Fondo del Hero ── */
+  @keyframes rankPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+  }
+  .hero-bg {
+    background: radial-gradient(circle at center, rgba(124,58,237,0.15) 0%, transparent 60%);
+    animation: rankPulse 8s infinite alternate;
+  }
+  
+  /* ── Podio Olímpico ── */
+  .podium-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 1rem;
+    padding-bottom: 2rem;
+  }
+  
+  .podium-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    max-width: 240px;
+    background: #0D0B1E;
+  }
+  .podium-card:hover {
+    transform: translateY(-10px);
+  }
+  
+  /* Oro (#1) */
+  .podium-gold {
+    border: 2px solid #FBBF24;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.1);
+    z-index: 10;
+    margin-bottom: 2rem; /* Lo eleva más alto */
+  }
+  .podium-gold:hover { box-shadow: 0 15px 40px rgba(251, 191, 36, 0.5); }
+  
+  /* Plata (#2) */
+  .podium-silver {
+    border: 2px solid #94A3B8;
+    box-shadow: 0 0 20px rgba(148, 163, 184, 0.2);
+    z-index: 5;
+  }
+  .podium-silver:hover { box-shadow: 0 10px 30px rgba(148, 163, 184, 0.4); }
+  
+  /* Bronce (#3) */
+  .podium-bronze {
+    border: 2px solid #B45309;
+    box-shadow: 0 0 20px rgba(180, 83, 9, 0.2);
+    z-index: 5;
+  }
+  .podium-bronze:hover { box-shadow: 0 10px 30px rgba(180, 83, 9, 0.4); }
+
+  /* ── Corona #1 ── */
+  .crown-icon {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5rem;
+    filter: drop-shadow(0 0 10px rgba(251,191,36,0.8));
+    animation: bounce 2s infinite;
+  }
+
+  /* ── Filas Modernas (Spotify Style) ── */
+  .rank-row {
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .rank-row:hover {
+    background: rgba(124,58,237,0.1);
+    transform: translateX(4px);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative w-full overflow-hidden">
+    {# Fondo Hero #}
+    <div class="absolute inset-0 hero-bg pointer-events-none"></div>
+
+    <div class="max-w-6xl mx-auto px-4 py-12 relative z-10">
+        
+        {# ── Encabezado ── #}
+        <div class="text-center mb-12">
+            <h1 class="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-brand-light to-white mb-4 tracking-tight drop-shadow-xl">
+                {% if current_region == 'GLOBAL' %}
+                    Ranking Global
+                {% else %}
+                    Ranking Nacional
+                {% endif %}
+            </h1>
+            <p class="text-purple-200 text-lg md:text-xl font-medium max-w-2xl mx-auto">Las historias más aclamadas por la comunidad de Novelatam.</p>
+        </div>
+
+        {# ── Filtros (Pills y Región) ── #}
+        <div class="flex flex-col md:flex-row items-center justify-center gap-6 mb-16">
+            
+            {# Orden #}
+            <div class="inline-flex rounded-full p-1.5 bg-[#0D0B1E]/80 backdrop-blur-md border border-brand/30 shadow-xl">
+                <a href="?sort=popular&region={{ current_region }}" class="px-8 py-2.5 rounded-full text-sm font-black uppercase tracking-wider transition-all {% if sort_by == 'popular' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.5)]{% else %}text-purple-400 hover:text-white hover:bg-white/5{% endif %}">
+                    🔥 Populares
+                </a>
+                <a href="?sort=rating&region={{ current_region }}" class="px-8 py-2.5 rounded-full text-sm font-black uppercase tracking-wider transition-all {% if sort_by == 'rating' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.5)]{% else %}text-purple-400 hover:text-white hover:bg-white/5{% endif %}">
+                    ⭐ Mejor Valoradas
+                </a>
+            </div>
+
+            {# País/Región Selector #}
+            <form action="" method="get" class="flex items-center gap-2">
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+                <span class="text-purple-400 font-bold text-sm">Región:</span>
+                <select name="region" onchange="this.form.submit()" class="bg-[#0D0B1E] border border-brand/30 text-white text-sm font-bold rounded-full px-4 py-2.5 focus:outline-none focus:border-brand shadow-lg cursor-pointer">
+                    {% for code, name in country_choices %}
+                        <option value="{{ code }}" {% if current_region == code %}selected{% endif %}>
+                            {% if code == 'GLOBAL' %}🌍{% else %}📍{% endif %} {{ name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+
+        {# Verificar si hay novelas #}
+        {% if novels %}
+            
+            {# ── PODIO (Top 3) ── #}
+            <div class="podium-container mb-20 px-2 sm:px-10">
+                
+                {# === PLATA (Puesto #2) === #}
+                {% if novels|length >= 2 %}
+                {% with novel=novels.1 %}
+                <a href="{% url 'novels:detail' novel.slug %}" class="podium-card podium-silver hidden sm:block">
+                    <div class="absolute top-2 left-2 z-20 w-8 h-8 rounded-full bg-slate-400/90 flex items-center justify-center text-white font-black shadow-lg">2</div>
+                    <div class="aspect-[3/4] relative">
+                        {% if novel.cover_image %}
+                            <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-slate-800 flex items-center justify-center text-3xl opacity-50">📚</div>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0D0B1E] via-[#0D0B1E]/60 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 text-center">
+                            <h3 class="text-white font-bold text-sm truncate mb-1">{{ novel.title }}</h3>
+                            <p class="text-slate-300 text-[10px] uppercase font-black">Por {{ novel.author.username }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endwith %}
+                {% endif %}
+
+                {# === ORO (Puesto #1) === #}
+                {% if novels|length >= 1 %}
+                {% with novel=novels.0 %}
+                <a href="{% url 'novels:detail' novel.slug %}" class="podium-card podium-gold w-full sm:w-auto transform scale-110 sm:scale-100">
+                    <div class="crown-icon">👑</div>
+                    <div class="absolute top-2 left-2 z-20 w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-amber-900 text-lg font-black shadow-[0_0_15px_rgba(251,191,36,0.8)] border-2 border-white">1</div>
+                    <div class="aspect-[3/4] relative">
+                        {% if novel.cover_image %}
+                            <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-amber-900/40 flex items-center justify-center text-4xl opacity-50">📚</div>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#090715] via-[#090715]/70 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-5 text-center">
+                            <h3 class="text-white font-black text-lg leading-tight mb-1">{{ novel.title }}</h3>
+                            <p class="text-amber-400 text-xs uppercase font-black tracking-widest mb-2">{{ novel.author.username }}</p>
+                            <div class="flex justify-center gap-3 text-xs font-bold text-purple-200 bg-white/10 w-fit mx-auto px-3 py-1 rounded-full backdrop-blur-sm">
+                                <span>{{ novel.avg_rating|default_if_none:0.0|floatformat:1 }} ⭐</span>
+                                <span>{{ novel.bookmarks_count }} 🔖</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endwith %}
+                {% endif %}
+
+                {# === BRONCE (Puesto #3) === #}
+                {% if novels|length >= 3 %}
+                {% with novel=novels.2 %}
+                <a href="{% url 'novels:detail' novel.slug %}" class="podium-card podium-bronze hidden sm:block">
+                    <div class="absolute top-2 left-2 z-20 w-8 h-8 rounded-full bg-amber-700/90 flex items-center justify-center text-white font-black shadow-lg">3</div>
+                    <div class="aspect-[3/4] relative">
+                        {% if novel.cover_image %}
+                            <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-amber-900/20 flex items-center justify-center text-3xl opacity-50">📚</div>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0D0B1E] via-[#0D0B1E]/60 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 text-center">
+                            <h3 class="text-white font-bold text-sm truncate mb-1">{{ novel.title }}</h3>
+                            <p class="text-amber-600 text-[10px] uppercase font-black">Por {{ novel.author.username }}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endwith %}
+                {% endif %}
+                
+            </div>
+            
+            {# (En móviles mostramos 2 y 3 en formato lista normal para no romper la pantalla) #}
+            <div class="block sm:hidden space-y-3 mb-8">
+                {% if novels|length >= 2 %}
+                {% with novel=novels.1 %}
+                <a href="{% url 'novels:detail' novel.slug %}" class="flex items-center gap-4 bg-[#0D0B1E] border border-slate-400/30 p-3 rounded-2xl">
+                    <span class="text-3xl font-black text-slate-300 w-8 text-center drop-shadow-md">2</span>
+                    <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://via.placeholder.com/150{% endif %}" class="w-12 h-16 object-cover rounded-lg">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white font-bold truncate">{{ novel.title }}</p>
+                        <p class="text-slate-400 text-xs">Por {{ novel.author.username }}</p>
+                    </div>
+                </a>
+                {% endwith %}
+                {% endif %}
+                {% if novels|length >= 3 %}
+                {% with novel=novels.2 %}
+                <a href="{% url 'novels:detail' novel.slug %}" class="flex items-center gap-4 bg-[#0D0B1E] border border-amber-600/30 p-3 rounded-2xl">
+                    <span class="text-3xl font-black text-amber-600 w-8 text-center drop-shadow-md">3</span>
+                    <img src="{% if novel.cover_image %}{{ novel.cover_image.url }}{% else %}https://via.placeholder.com/150{% endif %}" class="w-12 h-16 object-cover rounded-lg">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-white font-bold truncate">{{ novel.title }}</p>
+                        <p class="text-amber-600 text-xs">Por {{ novel.author.username }}</p>
+                    </div>
+                </a>
+                {% endwith %}
+                {% endif %}
+            </div>
+
+            {# ── LISTA (Resto del Ranking #4 en adelante) ── #}
+            {% if novels|length > 3 %}
+            <div class="max-w-4xl mx-auto glass rounded-3xl p-2 md:p-6 shadow-2xl border border-white/5">
+                <div class="space-y-1">
+                    {% for novel in novels|slice:"3:" %}
+                    <a href="{% url 'novels:detail' novel.slug %}" class="rank-row flex items-center gap-4 p-3 rounded-2xl group relative overflow-hidden">
+                        
+                        {# Puesto #}
+                        <div class="w-10 text-center flex-shrink-0">
+                            <span class="text-xl md:text-2xl font-black text-purple-500/50 group-hover:text-purple-400 transition-colors">{{ forloop.counter|add:3 }}</span>
+                        </div>
+                        
+                        {# Mini Portada #}
+                        <div class="w-12 h-16 md:w-16 md:h-24 flex-shrink-0 rounded-xl overflow-hidden shadow-md group-hover:shadow-[0_0_15px_rgba(124,58,237,0.4)] transition-shadow">
+                            {% if novel.cover_image %}
+                                <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-brand/20 flex items-center justify-center text-xl opacity-50">📚</div>
+                            {% endif %}
+                        </div>
+                        
+                        {# Info #}
+                        <div class="flex-1 min-w-0 flex flex-col justify-center">
+                            <h4 class="text-white font-bold text-base md:text-lg truncate mb-0.5 group-hover:text-brand-light transition-colors">{{ novel.title }}</h4>
+                            <div class="flex items-center gap-3 text-xs text-purple-400">
+                                <span class="uppercase tracking-wider font-semibold">{{ novel.author.username }}</span>
+                                <span class="hidden md:inline bg-brand/20 px-2 py-0.5 rounded text-[10px] font-black text-white">{{ novel.get_genre_display }}</span>
+                            </div>
+                        </div>
+
+                        {# Stats #}
+                        <div class="hidden sm:flex items-center gap-6 pr-4 flex-shrink-0">
+                            <div class="text-right">
+                                <p class="text-[10px] uppercase font-bold text-purple-500">Valoración</p>
+                                <p class="text-white font-black">{{ novel.avg_rating|default_if_none:0.0|floatformat:1 }} <span class="text-yellow-400">★</span></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] uppercase font-bold text-purple-500">Bibliotecas</p>
+                                <p class="text-white font-black">{{ novel.bookmarks_count }} <span class="text-purple-400">🔖</span></p>
+                            </div>
+                        </div>
+                        
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            {# Empty State #}
+            <div class="text-center py-24 glass rounded-3xl max-w-2xl mx-auto border border-brand/20 shadow-2xl">
+                <span class="text-6xl mb-6 block filter grayscale opacity-30">🏆</span>
+                <h3 class="text-2xl font-black text-white mb-2">Aún no hay obras para rankear</h3>
+                <p class="text-purple-300">Las historias están siendo escritas. Vuelve pronto para descubrir a los campeones.</p>
+            </div>
+        {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

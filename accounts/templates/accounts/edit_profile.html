@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar Perfil — Novelatam{% endblock %}
+{% block meta_description %}Edita tu bio, foto de perfil y sitio web en Novelatam.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Área de carga del avatar */
+  .avatar-drop-zone {
+    transition: border-color .25s ease, background .25s ease;
+    cursor: pointer;
+  }
+  .avatar-drop-zone:hover {
+    border-color: rgba(124,58,237,.8);
+    background: rgba(124,58,237,.1);
+  }
+
+  /* Input fields focus */
+  .field-input:focus {
+    border-color: rgba(124,58,237,.8) !important;
+    box-shadow: 0 0 0 3px rgba(124,58,237,.15);
+    outline: none;
+  }
+
+  /* Barra de caracteres */
+  #bio-chars { font-variant-numeric: tabular-nums; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-12">
+
+  {# ── Encabezado ── #}
+  <div class="mb-8">
+    <a href="{% url 'accounts:profile' %}"
+       class="inline-flex items-center gap-1.5 text-purple-400 hover:text-white text-sm mb-4 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Volver al perfil
+    </a>
+    <h1 class="text-3xl font-extrabold text-white">Editar Perfil</h1>
+    <p class="text-purple-400 text-sm mt-1">Personaliza cómo te ven otros lectores y autores.</p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    {# ── Avatar ── #}
+    <div class="glass rounded-2xl p-6" style="border:1px solid rgba(124,58,237,.25);">
+      <label class="block text-sm font-bold text-white mb-4">Foto de Perfil</label>
+
+      <div class="flex items-center gap-6">
+        {# Vista previa #}
+        <div id="avatar-preview"
+             class="w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center text-3xl font-extrabold text-white overflow-hidden"
+             style="background:linear-gradient(135deg,#4C1D95,#7C3AED);">
+          {% if form.instance.avatar %}
+            <img src="{{ form.instance.avatar.url }}" alt="Avatar" class="w-full h-full object-cover">
+          {% else %}
+            {{ request.user.username|first|upper }}
+          {% endif %}
+        </div>
+
+        {# Zona de carga #}
+        <div class="flex-1">
+          <label for="avatar-input"
+                 class="avatar-drop-zone flex flex-col items-center justify-center gap-2 rounded-xl py-6 cursor-pointer"
+                 style="border:2px dashed rgba(124,58,237,.4);background:rgba(124,58,237,.05);">
+            <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0
+                       012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2
+                       0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-sm text-purple-400">
+              <span class="text-brand font-semibold">Haz clic para subir</span> o arrastra aquí
+            </span>
+            <span class="text-xs text-purple-600">PNG, JPG, WebP (máx. 5 MB)</span>
+          </label>
+          {{ form.avatar }}
+        </div>
+      </div>
+    </div>
+
+    {# ── Bio ── #}
+    <div class="glass rounded-2xl p-6" style="border:1px solid rgba(124,58,237,.25);">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-sm font-bold text-white" for="{{ form.bio.id_for_label }}">
+          Biografía
+        </label>
+        <span class="text-xs text-purple-500">
+          <span id="bio-chars">{{ form.instance.bio|length }}</span>/500
+        </span>
+      </div>
+      {{ form.bio }}
+      <p class="text-xs text-purple-600 mt-1.5">
+        Cuéntale a la comunidad quién eres, qué escribes o qué tipo de novelas amas.
+      </p>
+    </div>
+
+    {# ── Website ── #}
+    <div class="glass rounded-2xl p-6" style="border:1px solid rgba(124,58,237,.25);">
+      <label class="block text-sm font-bold text-white mb-2" for="{{ form.website.id_for_label }}">
+        Sitio Web / Redes Sociales
+      </label>
+      {{ form.website }}
+      <p class="text-xs text-purple-600 mt-1.5">
+        Comparte tu blog, Twitter, Wattpad o cualquier red social.
+      </p>
+    </div>
+
+    {# ── País (Ranking Regional) ── #}
+    <div class="glass rounded-2xl p-6" style="border:1px solid rgba(124,58,237,.25);">
+      <label class="block text-sm font-bold text-white mb-2" for="{{ form.country.id_for_label }}">
+        País de Residencia
+      </label>
+      {{ form.country }}
+      <p class="text-xs text-purple-600 mt-1.5">
+        Selecciona tu país para participar y competir en los Rankings Nacionales de Novelatam.
+      </p>
+    </div>
+
+    {# ── Errores globales ── #}
+    {% if form.errors %}
+    <div class="glass rounded-xl px-4 py-3 text-sm text-red-400"
+         style="border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);">
+      {% for field in form %}
+        {% for error in field.errors %}
+          <p>{{ field.label }}: {{ error }}</p>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── Botones ── #}
+    <div class="flex items-center justify-end gap-3 pt-2">
+      <a href="{% url 'accounts:profile' %}"
+         class="px-5 py-2.5 rounded-full text-sm font-semibold text-purple-300 hover:text-white transition-colors"
+         style="border:1px solid rgba(42,37,80,.8);">
+        Cancelar
+      </a>
+      <button type="submit" id="btn-guardar-perfil"
+              class="px-6 py-2.5 rounded-full text-sm font-bold text-white glow-brand transition-all hover:scale-105"
+              style="background:#7C3AED;">
+        Guardar Cambios
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Vista previa del avatar
+  const avatarInput = document.getElementById('avatar-input');
+  const avatarPreview = document.getElementById('avatar-preview');
+
+  avatarInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      avatarPreview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Contador de caracteres de la bio
+  const bioField = document.querySelector('textarea[name="bio"]');
+  const bioChars = document.getElementById('bio-chars');
+  if (bioField && bioChars) {
+    bioField.addEventListener('input', () => {
+      bioChars.textContent = bioField.value.length;
+    });
+  }
+</script>
+{% endblock %}

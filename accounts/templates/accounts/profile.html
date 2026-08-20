@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Perfil de {{ profile_user.username }} — Novelatam{% endblock %}
+{% block meta_description %}Perfil de {{ profile_user.username }} en Novelatam. Estadísticas de lectura, biblioteca personal y novelas publicadas.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Animación del Banner ── */
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .profile-banner {
+    background: linear-gradient(-45deg, #4f1d7a, #7C3AED, #311863, #1e1040);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNykiLz48L3N2Zz4=');
+    opacity: 0.6;
+  }
+
+  /* ── Avatar Superpuesto ── */
+  .avatar-container {
+    margin-top: -60px; /* Superposición sobre el banner */
+    position: relative;
+    z-index: 10;
+  }
+  .avatar-glow {
+    box-shadow: 0 0 0 6px #090715, 0 0 25px rgba(124,58,237,0.5);
+  }
+
+  /* ── Badges Tooltips (Estilo Trofeos) ── */
+  .badge-trophy {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .badge-trophy:hover {
+    transform: scale(1.15) translateY(-5px);
+  }
+  .badge-trophy .tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(13,11,30,0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(124,58,237,0.5);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 50;
+    pointer-events: none;
+  }
+  .badge-trophy:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Pestañas Píldora ── */
+  .tab-pill {
+    transition: all 0.3s ease;
+  }
+  .tab-active {
+    background: #7C3AED;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(124,58,237,0.4);
+  }
+  .tab-inactive {
+    background: rgba(42,37,80,0.4);
+    color: #C4B5FD;
+    border: 1px solid transparent;
+  }
+  .tab-inactive:hover {
+    background: rgba(124,58,237,0.2);
+    color: white;
+    border: 1px solid rgba(124,58,237,0.3);
+  }
+
+  /* ── Tarjetas Hover ── */
+  .novel-cover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .novel-cover-card:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(124,58,237,0.25); }
+
+  /* ── Barra de progreso ── */
+  .progress-track { background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden; }
+  .progress-fill  { height: 100%; border-radius: 3px; background: linear-gradient(90deg,#C4B5FD,#7C3AED); transition: width 1s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl mx-auto px-4 py-8">
+
+<!-- ════════════════════════════════════════
+   1. CABECERA PREMIUM (BANNER + INFO)
+════════════════════════════════════════ -->
+<div class="glass rounded-3xl overflow-hidden mb-8 shadow-2xl border border-brand/20">
+    
+    {# Banner Superior Animado #}
+    <div class="profile-banner h-48 md:h-64 w-full"></div>
+
+    <div class="px-6 md:px-12 pb-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            
+            {# Avatar y Nombre #}
+            <div class="flex flex-col md:flex-row items-center md:items-end gap-6 avatar-container">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden avatar-glow bg-[#090715]">
+                    {% if user_profile and user_profile.avatar %}
+                        <img src="{{ user_profile.avatar.url }}" alt="Avatar de {{ profile_user.username }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-6xl font-black text-white" style="background:linear-gradient(135deg,#7C3AED,#311863);">
+                            {{ profile_user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="text-center md:text-left mb-2">
+                    <div class="flex items-center justify-center md:justify-start gap-3 mb-1">
+                        <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight">{{ profile_user.username }}</h1>
+                        {% if published_novels.count > 0 %}
+                        <span class="bg-brand/20 border border-brand/40 text-brand-light text-[10px] font-black uppercase px-2 py-0.5 rounded backdrop-blur-sm" title="Autor Verificado">
+                            Autor ✓
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-purple-300 font-medium text-sm mb-3">Miembro desde {{ profile_user.date_joined|date:"F Y" }}</p>
+                    
+                    <p class="text-purple-200 text-sm max-w-xl mx-auto md:mx-0 leading-relaxed bg-surface-card/50 p-3 rounded-xl border border-white/5">
+                        {% if user_profile and user_profile.bio %}
+                            {{ user_profile.bio }}
+                        {% else %}
+                            Lector y escritor en Novelatam.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            {# Botones de Acción (Ajustes) #}
+            <div class="flex items-center justify-center gap-3">
+                {% if profile_user == request.user %}
+                <a href="{% url 'accounts:edit_profile' %}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-brand hover:bg-brand-light text-white font-bold transition-all glow-brand hover:-translate-y-0.5 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Editar Perfil
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+
+        {# ── Grid Unificado de Estadísticas y Medallas ── #}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 pt-8 border-t border-white/10">
+            
+            {# Stats Bento #}
+            <div class="lg:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-[#13112A]/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center border border-white/5 hover:border-brand/30 transition-colors">
+                    <span class="text-3xl font-black text-white mb-1">{{ novels_count }}</span>
+                    <span class="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Obras Leídas</span>
+                </div>
+                <div class="bg-[#13112A]/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center border border-white/5 hover:border-brand/30 transition-colors">
+                    <span class="text-3xl font-black text-white mb-1">{{ chapters_count }}</span>
+                    <span class="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Caps. Leídos</span>
+                </div>
+                <div class="bg-[#13112A]/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center border border-white/5 hover:border-brand/30 transition-colors">
+                    <span class="text-3xl font-black text-white mb-1">{{ reading_hours }}<span class="text-lg text-purple-300">h</span></span>
+                    <span class="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Tiempo Lectura</span>
+                </div>
+                <div class="bg-[#13112A]/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center border border-white/5 hover:border-brand/30 transition-colors">
+                    <span class="text-3xl font-black text-white mb-1">{{ comments_count }}</span>
+                    <span class="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Reseñas</span>
+                </div>
+            </div>
+
+            {# Escaparate de Trofeos #}
+            <div class="bg-[#13112A]/60 rounded-2xl p-4 border border-white/5 flex flex-col justify-center">
+                <h3 class="text-xs font-bold text-purple-300 uppercase tracking-wider mb-3 text-center lg:text-left">🏆 Vitrina de Trofeos</h3>
+                <div class="flex items-center justify-center lg:justify-start gap-4 flex-wrap">
+                    {% for badge in badges %}
+                    <div class="badge-trophy w-12 h-12 rounded-full flex items-center justify-center text-2xl {% if not badge.unlocked %}opacity-20 grayscale{% endif %}"
+                         style="background: radial-gradient(circle at top left, {{ badge.color }}40, transparent); border: 1px solid {{ badge.color }}50; box-shadow: 0 0 15px {{ badge.color }}20;">
+                        {{ badge.icon }}
+                        <div class="tooltip text-center">
+                            <p class="font-bold text-white mb-1">{{ badge.name }}</p>
+                            <p class="text-purple-300 font-normal leading-tight">{{ badge.desc }}</p>
+                            {% if not badge.unlocked %}<p class="text-red-400 text-[10px] mt-1 font-bold">Bloqueado</p>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════
+   2. SECCIÓN DE CONTENIDO (Píldoras)
+════════════════════════════════════════ -->
+<div class="flex gap-3 mb-8 overflow-x-auto hide-scrollbar pb-2 px-2">
+    <a href="?tab=biblioteca" class="tab-pill px-6 py-2.5 rounded-full text-sm font-bold flex-shrink-0 flex items-center gap-2 {% if tab == 'biblioteca' %}tab-active{% else %}tab-inactive{% endif %}">
+        📚 Mi Biblioteca
+    </a>
+    <a href="?tab=publicadas" class="tab-pill px-6 py-2.5 rounded-full text-sm font-bold flex-shrink-0 flex items-center gap-2 {% if tab == 'publicadas' %}tab-active{% else %}tab-inactive{% endif %}">
+        ✍️ Mis Novelas Publicadas
+        {% if published_novels.count > 0 %}
+        <span class="bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px]">{{ published_novels.count }}</span>
+        {% endif %}
+    </a>
+    <a href="?tab=muro" class="tab-pill px-6 py-2.5 rounded-full text-sm font-bold flex-shrink-0 flex items-center gap-2 {% if tab == 'muro' %}tab-active{% else %}tab-inactive{% endif %}">
+        📢 Muro de Anuncios
+    </a>
+</div>
+
+<!-- ════════════════════════════════════════
+   3. PANDELES DE CONTENIDO
+════════════════════════════════════════ -->
+<div class="min-h-[400px]">
+
+    {# ── Mi Biblioteca ── #}
+    {% if tab == 'biblioteca' %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        {% for novel in bookmarked_novels %}
+        <a href="{% url 'novels:detail' novel.slug %}" class="novel-cover-card bg-[#13112A] rounded-2xl overflow-hidden border border-white/5 block group relative">
+            <div class="aspect-[2/3] w-full relative">
+                {% if novel.cover_image %}
+                    <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center bg-brand/20">
+                        <span class="text-4xl opacity-50">📚</span>
+                    </div>
+                {% endif %}
+                <span class="absolute top-2 left-2 text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white border border-white/10">{{ novel.get_genre_display }}</span>
+            </div>
+            <div class="p-4 relative">
+                <p class="text-sm font-bold text-white truncate mb-2">{{ novel.title }}</p>
+                <div class="progress-track mb-1"><div class="progress-fill" style="width:0%;"></div></div>
+                <div class="flex justify-between text-[10px] font-bold text-purple-400">
+                    <span>0% Leído</span><span>0/{{ novel.chapters.count }}</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center glass rounded-3xl border border-brand/20">
+            <span class="text-6xl mb-4 opacity-50">📖</span>
+            <h3 class="text-2xl font-black text-white mb-2">Tu biblioteca está vacía</h3>
+            <p class="text-purple-300 text-sm mb-6">Guarda tus historias favoritas para no perderles la pista.</p>
+            <a href="{% url 'novels:list' %}" class="bg-brand hover:bg-brand-light text-white font-bold px-8 py-3.5 rounded-full transition-all glow-brand hover:-translate-y-1">
+                Explorar Novelas
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Mis Novelas Publicadas ── #}
+    {% elif tab == 'publicadas' %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        {% for novel in published_novels %}
+        <div class="novel-cover-card bg-[#13112A] rounded-2xl overflow-hidden border border-white/5 relative group">
+            <a href="{% url 'novels:detail' novel.slug %}" class="block aspect-[2/3] w-full relative">
+                {% if novel.cover_image %}
+                    <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-brand/20 text-4xl opacity-50">📚</div>
+                {% endif %}
+                <span class="absolute top-2 left-2 text-[10px] font-black uppercase px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm text-white border border-white/10">{{ novel.get_genre_display }}</span>
+            </a>
+            <div class="p-4 text-center">
+                <p class="text-sm font-bold text-white truncate mb-1">{{ novel.title }}</p>
+                <p class="text-xs text-purple-400 mb-3">{{ novel.chapters.count }} Capítulos</p>
+                <a href="{% url 'novels:update' novel.slug %}" class="block w-full bg-surface-nav hover:bg-brand text-white text-xs font-bold py-2 rounded-lg transition-colors border border-white/10">
+                    ✏️ Editar Obra
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center glass rounded-3xl border border-brand/20">
+            <span class="text-6xl mb-4 opacity-50">✍️</span>
+            <h3 class="text-2xl font-black text-white mb-2">Comienza tu viaje literario</h3>
+            <p class="text-purple-300 text-sm mb-6">Aún no has publicado ninguna novela. ¡Anímate a compartir tu imaginación!</p>
+            <a href="{% url 'novels:create' %}" class="bg-gradient-to-r from-brand to-purple-500 hover:from-brand-light hover:to-purple-400 text-white font-black px-8 py-3.5 rounded-full transition-all shadow-[0_0_20px_rgba(124,58,237,0.4)] hover:-translate-y-1">
+                Escribir mi primera novela
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Muro de Anuncios ── #}
+    {% elif tab == 'muro' %}
+    <div class="max-w-3xl mx-auto">
+        <div class="glass p-6 rounded-3xl mb-8 border border-brand/20 relative overflow-hidden shadow-2xl">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-brand/20 rounded-full blur-3xl"></div>
+            <form hx-post="{% url 'accounts:post_to_wall' %}" hx-target="#wall-posts" hx-swap="afterbegin" hx-on::after-request="this.reset()">
+                {% csrf_token %}
+                <h3 class="text-white font-black text-lg mb-4 flex items-center gap-2">📣 Nuevo Anuncio</h3>
+                <textarea name="content" required placeholder="¿Tienes alguna novedad para tus lectores? Escríbela aquí..." class="w-full bg-[#0D0B1E]/80 border border-white/10 rounded-2xl p-5 text-white text-sm focus:ring-2 focus:ring-brand focus:border-transparent focus:outline-none mb-4 resize-none shadow-inner" rows="3"></textarea>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-brand hover:bg-brand-light text-white font-bold py-2.5 px-8 rounded-full transition-all glow-brand text-sm hover:-translate-y-0.5">
+                        Publicar en el Muro
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="wall-posts" class="space-y-4">
+            {% for post in wall_posts %}
+            <div class="glass p-6 rounded-3xl border border-white/5 hover:border-brand/30 transition-all hover:-translate-y-1 shadow-lg group">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center gap-3">
+                        {% if post.author.profile.avatar %}
+                            <img src="{{ post.author.profile.avatar.url }}" class="w-12 h-12 rounded-full object-cover border-2 border-brand/50 shadow-[0_0_10px_rgba(124,58,237,0.3)]">
+                        {% else %}
+                            <div class="w-12 h-12 rounded-full bg-brand/30 flex items-center justify-center text-lg font-black text-white border border-brand/50">{{ post.author.username.0|upper }}</div>
+                        {% endif %}
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-white text-lg">{{ post.author.username }}</span>
+                                <span class="bg-brand/20 text-brand-light text-[9px] font-black uppercase px-2 py-0.5 rounded-full">Autor</span>
+                            </div>
+                            <span class="text-xs font-semibold text-purple-400">{{ post.created_at|date:'d M Y, H:i' }}</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-purple-100 text-[15px] leading-relaxed whitespace-pre-wrap pl-15">{{ post.content }}</p>
+            </div>
+            {% empty %}
+            <div class="text-center py-20 glass rounded-3xl border border-white/5">
+                <span class="text-6xl opacity-30 mb-4 block filter grayscale">📢</span>
+                <p class="text-white font-black text-2xl mb-2">Muro en silencio</p>
+                <p class="text-purple-400 text-sm">Tus lectores están esperando tus noticias. ¡Publica tu primer anuncio!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Novelatam — Escribe, Lee y Gana en Mundos Infinitos{% endblock %}
+{% block meta_description %}Novelatam es la plataforma definitiva para novelas de isekai y fantasía. Únete a miles de lectores y descubre nuestro Programa Partner para autores.{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* ── Animaciones Base ── */
+  @keyframes blob {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  .animate-blob { animation: blob 10s infinite; }
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
+
+  /* ── Gradiente Animado de Texto ── */
+  .text-gradient-animated {
+    background: linear-gradient(to right, #C4B5FD, #A78BFA, #7C3AED, #A78BFA, #C4B5FD);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shine 4s linear infinite;
+  }
+  .text-gradient-gold {
+    background: linear-gradient(to right, #FDE047, #F59E0B, #D97706, #F59E0B, #FDE047);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shine 5s linear infinite;
+  }
+  @keyframes shine { to { background-position: 200% center; } }
+
+  /* ── Estilos Bento Box ── */
+  .bento-card {
+    background: rgba(19,17,42,0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(42,37,80,0.8);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .bento-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(124,58,237,0.5);
+    box-shadow: 0 15px 35px -5px rgba(124,58,237,0.2);
+  }
+
+  /* ── Golden Partner Card ── */
+  .partner-card {
+    background: linear-gradient(135deg, rgba(30,20,5,0.95) 0%, rgba(13,11,30,0.98) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .partner-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,158,11,0.8), transparent);
+  }
+  
+  /* ── Animación de Entrada ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════
+   1. HERO SECTION (Ultra Premium)
+════════════════════════════════════════ -->
+<section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 pb-16">
+    
+    {# Fondo con blobs animados #}
+    <div class="absolute inset-0 w-full h-full bg-[#090715]">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50"></div>
+    </div>
+    <div class="absolute top-0 -left-4 w-96 h-96 bg-brand rounded-full mix-blend-screen filter blur-[128px] opacity-40 animate-blob"></div>
+    <div class="absolute top-0 -right-4 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-[128px] opacity-30 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-8 left-20 w-96 h-96 bg-indigo-600 rounded-full mix-blend-screen filter blur-[128px] opacity-30 animate-blob animation-delay-4000"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 text-center">
+        
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand/30 bg-brand/10 backdrop-blur-sm mb-8 reveal active">
+            <span class="flex h-3 w-3 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-brand-light"></span>
+            </span>
+            <span class="text-sm font-semibold text-purple-200">La nueva era de la WebNovel en español</span>
+        </div>
+
+        <h1 class="text-5xl md:text-7xl lg:text-[5.5rem] font-black tracking-tight text-white leading-[1.1] mb-8 reveal active" style="transition-delay: 100ms;">
+            Escribe tu leyenda. <br>
+            <span class="text-gradient-animated">Monetiza tu pasión.</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-purple-200 max-w-2xl mx-auto mb-10 leading-relaxed font-light reveal active" style="transition-delay: 200ms;">
+            Únete a la plataforma definitiva para novelas de Isekai y Fantasía. Lee gratis sin límites o conviértete en autor Partner y gana dinero por cada capítulo que publiques.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-5 reveal active" style="transition-delay: 300ms;">
+            <a href="{% url 'novels:list' %}" class="w-full sm:w-auto px-8 py-4 bg-white text-[#090715] hover:bg-purple-100 font-black rounded-2xl text-lg transition-transform hover:-translate-y-1 shadow-[0_0_40px_rgba(255,255,255,0.2)]">
+                Empezar a Leer 📚
+            </a>
+            <a href="{% if user.is_authenticated %}{% url 'novels:create' %}{% else %}{% url 'accounts:register' %}{% endif %}" class="w-full sm:w-auto px-8 py-4 bg-brand hover:bg-brand-light text-white font-black rounded-2xl text-lg transition-transform hover:-translate-y-1 glow-brand group border border-brand/50">
+                Quiero Publicar <span class="inline-block transition-transform group-hover:translate-x-1">→</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════════
+   2. BENTO BOX FEATURES
+════════════════════════════════════════ -->
+<section class="max-w-7xl mx-auto px-6 py-20">
+    <div class="text-center mb-16 reveal">
+        <h2 class="text-3xl md:text-4xl font-black text-white mb-4">Todo lo que necesitas en un solo lugar</h2>
+        <p class="text-purple-300">Diseñado desde cero pensando en la mejor experiencia para lectores y escritores.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
+        
+        {# Bento 1: Lectura #}
+        <div class="bento-card md:col-span-2 flex flex-col justify-between p-8 relative overflow-hidden group reveal">
+            <div class="absolute right-0 bottom-0 w-64 h-64 bg-brand/10 rounded-full blur-3xl group-hover:bg-brand/20 transition-colors"></div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 rounded-xl bg-brand/20 border border-brand/30 flex items-center justify-center text-2xl mb-6">📱</div>
+                <h3 class="text-2xl font-black text-white mb-3">Lectura Fluida y Cómoda</h3>
+                <p class="text-purple-200 max-w-md leading-relaxed">
+                    Disfruta de cientos de capítulos sin distracciones. Interfaz adaptativa, modo oscuro nativo y tipografía optimizada para largas sesiones de lectura en cualquier dispositivo.
+                </p>
+            </div>
+        </div>
+
+        {# Bento 2: Comunidad #}
+        <div class="bento-card flex flex-col justify-between p-8 relative group reveal">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl group-hover:bg-pink-500/20 transition-colors"></div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-2xl mb-6">💬</div>
+                <h3 class="text-xl font-black text-white mb-3">Comunidad Activa</h3>
+                <p class="text-purple-200 text-sm leading-relaxed">
+                    Comenta por párrafos, sigue a tus autores favoritos y debate teorías en tiempo real.
+                </p>
+            </div>
+        </div>
+
+        {# Bento 3: Editor #}
+        <div class="bento-card flex flex-col justify-between p-8 relative group reveal">
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors"></div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-2xl mb-6">✍️</div>
+                <h3 class="text-xl font-black text-white mb-3">Editor Profesional</h3>
+                <p class="text-purple-200 text-sm leading-relaxed">
+                    Guarda borradores, programa publicaciones y formatea tu texto con nuestro editor avanzado.
+                </p>
+            </div>
+        </div>
+
+        {# Bento 4: Estadísticas #}
+        <div class="bento-card md:col-span-2 flex flex-col justify-between p-8 relative overflow-hidden group reveal">
+            <div class="absolute top-1/2 right-10 -translate-y-1/2 hidden md:block">
+                {# Gráfico simulado #}
+                <div class="flex items-end gap-2 h-24 opacity-60">
+                    <div class="w-6 bg-purple-500/40 rounded-t-sm h-8"></div>
+                    <div class="w-6 bg-purple-500/60 rounded-t-sm h-12"></div>
+                    <div class="w-6 bg-purple-500/80 rounded-t-sm h-16"></div>
+                    <div class="w-6 bg-brand rounded-t-sm h-24"></div>
+                </div>
+            </div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-2xl mb-6">📈</div>
+                <h3 class="text-2xl font-black text-white mb-3">Panel de Analíticas</h3>
+                <p class="text-purple-200 max-w-md leading-relaxed">
+                    Toma el control de tu crecimiento. Visualiza cuántos lectores tienes, su nivel de retención y el apoyo recibido capítulo a capítulo.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ════════════════════════════════════════
+   3. SECCIÓN ESTRELLA: MONETIZACIÓN (PARTNER)
+════════════════════════════════════════ -->
+<section class="max-w-7xl mx-auto px-6 py-20 reveal">
+    <div class="partner-card rounded-[2.5rem] p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-12 shadow-[0_0_60px_rgba(245,158,11,0.15)]">
+        
+        <div class="flex-1 max-w-xl">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-xs uppercase tracking-wider mb-6">
+                ✨ Programa Novelatam Partner
+            </div>
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
+                Gana dinero real <br>
+                <span class="text-gradient-gold">por tus historias.</span>
+            </h2>
+            <p class="text-amber-100/70 text-lg mb-8 leading-relaxed">
+                Creemos que los creadores merecen ser recompensados. Nuestro sistema de ingresos compartidos inserta anuncios de forma elegante en tus capítulos, y <strong class="text-amber-400">tú recibes la mayor parte de las ganancias</strong>. Sin contratos abusivos, tú eres dueño de tu obra.
+            </p>
+            
+            <ul class="space-y-4 mb-10">
+                <li class="flex items-center gap-3 text-amber-50/80">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 text-xs">✔</span>
+                    Pagos mensuales directos a tu cuenta.
+                </li>
+                <li class="flex items-center gap-3 text-amber-50/80">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 text-xs">✔</span>
+                    Panel de control financiero transparente.
+                </li>
+                <li class="flex items-center gap-3 text-amber-50/80">
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 text-xs">✔</span>
+                    Mínimos de retiro accesibles.
+                </li>
+            </ul>
+
+            <a href="{% if user.is_authenticated %}{% url 'novels:create' %}{% else %}{% url 'accounts:register' %}{% endif %}" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-amber-400 to-amber-600 text-[#1E1300] font-black rounded-2xl text-lg hover:scale-105 transition-transform shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+                Empezar a monetizar
+            </a>
+        </div>
+
+        {# Arte visual de ganancias #}
+        <div class="flex-1 w-full flex justify-center md:justify-end relative">
+            <div class="absolute inset-0 bg-amber-500/20 blur-[100px] rounded-full"></div>
+            <div class="relative w-full max-w-sm glass bg-[#130E05]/80 border border-amber-500/30 rounded-3xl p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-8 border-b border-amber-500/20 pb-4">
+                    <div>
+                        <p class="text-amber-500/60 text-xs font-bold uppercase mb-1">Ingresos Estimados (Mes)</p>
+                        <p class="text-3xl font-black text-white">$452.80 <span class="text-sm text-amber-500 font-normal">USD</span></p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-2xl">
+                        💰
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Vistas de anuncios</span>
+                        <span class="text-white font-bold">124,500</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">eCPM Promedio</span>
+                        <span class="text-white font-bold">$3.63</span>
+                    </div>
+                    <div class="w-full h-2 bg-gray-800 rounded-full mt-2 overflow-hidden">
+                        <div class="w-[75%] h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ════════════════════════════════════════
+   4. SHOWCASE DE NOVELAS (Novedades)
+════════════════════════════════════════ -->
+{% if featured_novels %}
+<section class="max-w-7xl mx-auto px-6 py-20 reveal">
+    <div class="flex items-end justify-between mb-10">
+        <div>
+            <h2 class="text-3xl font-black text-white mb-2">Descubrimientos Recientes</h2>
+            <p class="text-purple-300">Explora los nuevos mundos que están creando nuestros autores.</p>
+        </div>
+        <a href="{% url 'novels:list' %}" class="hidden sm:inline-flex text-brand hover:text-brand-light font-bold items-center gap-1 transition-colors">
+            Ver catálogo →
+        </a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {% for novel in featured_novels %}
+        <a href="{% url 'novels:detail' novel.slug %}" class="group relative aspect-[2/3] rounded-xl overflow-hidden bg-surface-card border border-surface-border">
+            {% if novel.cover_image %}
+                <img src="{{ novel.cover_image.url }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+            {% else %}
+                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-brand/20 to-surface-card p-2 text-center">
+                    <span class="text-3xl opacity-50 mb-2">📚</span>
+                    <span class="text-[10px] text-purple-300 font-bold">{{ novel.title }}</span>
+                </div>
+            {% endif %}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                <span class="text-[9px] font-black uppercase text-brand-light tracking-wider bg-brand/20 px-1.5 py-0.5 rounded backdrop-blur-sm">{{ novel.get_genre_display }}</span>
+                <p class="text-white font-bold text-xs mt-1.5 leading-snug line-clamp-2">{{ novel.title }}</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- ════════════════════════════════════════
+   5. MEGA CTA FINAL
+════════════════════════════════════════ -->
+<section class="max-w-7xl mx-auto px-6 py-20 reveal">
+    <div class="relative rounded-[3rem] overflow-hidden bg-brand border border-white/20 p-12 md:p-20 text-center">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xNSkiLz48L3N2Zz4=')] opacity-50"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-white/10 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div class="relative z-10 max-w-3xl mx-auto">
+            <h2 class="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">¿Listo para dar el salto?</h2>
+            <p class="text-xl text-purple-100 mb-10 font-light">
+                Únete a la comunidad de Novelatam hoy mismo. Lee sin límites o comienza a escribir y ganar dinero.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="{% url 'accounts:register' %}" class="w-full sm:w-auto px-10 py-5 bg-white text-brand hover:bg-gray-50 font-black rounded-2xl text-xl transition-transform hover:scale-105 shadow-2xl">
+                    Crear mi cuenta gratis
+                </a>
+            </div>
+            <p class="text-sm text-purple-200 mt-6 font-medium">Toma menos de 1 minuto. Sin tarjetas de crédito.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Intersection Observer para las animaciones "reveal" al hacer scroll
+    document.addEventListener("DOMContentLoaded", function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        });
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

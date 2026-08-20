@@ -1,0 +1,31 @@
+{% if user.is_authenticated %}
+    {% if is_bookmarked %}
+        <button hx-post="{% url 'reading:toggle_bookmark' novel.slug %}"
+                hx-target="#bookmark-button-container"
+                hx-swap="innerHTML"
+                class="inline-flex items-center gap-2 bg-surface-card border border-brand px-4 py-2 rounded-full text-brand text-sm font-bold transition-all hover:bg-brand hover:text-white group">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+            </svg>
+            En Biblioteca
+        </button>
+    {% else %}
+        <button hx-post="{% url 'reading:toggle_bookmark' novel.slug %}"
+                hx-target="#bookmark-button-container"
+                hx-swap="innerHTML"
+                class="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-full text-sm font-bold glow-brand transition-all hover:scale-105">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            </svg>
+            Añadir a Biblioteca
+        </button>
+    {% endif %}
+{% else %}
+    <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+       class="inline-flex items-center gap-2 bg-surface-card border border-surface-border px-4 py-2 rounded-full text-purple-300 hover:text-white hover:border-brand text-sm font-bold transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+        </svg>
+        Añadir a Biblioteca
+    </a>
+{% endif %}

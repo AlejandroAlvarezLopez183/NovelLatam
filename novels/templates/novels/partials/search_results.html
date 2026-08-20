@@ -1,0 +1,28 @@
+{% if novels %}
+    {% for novel in novels %}
+        <a href="{% url 'novels:detail' novel.slug %}" class="flex items-center gap-3 p-3 hover:bg-surface-border transition-colors border-b border-surface-border last:border-0 group">
+            <div class="w-10 h-14 rounded overflow-hidden flex-shrink-0 bg-surface-nav">
+                {% if novel.cover_image %}
+                    <img src="{{ novel.cover_image.url }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-xs opacity-50">📚</div>
+                {% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-white truncate group-hover:text-brand transition-colors">{{ novel.title }}</p>
+                <p class="text-xs text-purple-400 truncate">Por {{ novel.author.username }}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style="background:rgba(124,58,237,.2);color:#C4B5FD;">{{ novel.get_genre_display }}</span>
+                    <span class="text-[10px] text-purple-500">★ {{ novel.reviews.count }} reseñas</span>
+                </div>
+            </div>
+        </a>
+    {% endfor %}
+    <a href="{% url 'novels:list' %}?q={{ query }}" class="block p-3 text-center text-sm font-bold text-brand hover:text-brand-dark transition-colors border-t border-surface-border bg-surface-nav/50">
+        Ver todos los resultados
+    </a>
+{% else %}
+    <div class="p-4 text-center">
+        <p class="text-sm text-purple-400">No se encontraron resultados para "{{ query }}".</p>
+    </div>
+{% endif %}

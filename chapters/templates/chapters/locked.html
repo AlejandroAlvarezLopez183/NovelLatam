@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Capítulo {{ chapter.order }} — Solo para Seguidores | {{ novel.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  body > nav { display: none !important; }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 24px rgba(124,58,237,.3); }
+    50%       { box-shadow: 0 0 48px rgba(124,58,237,.6); }
+  }
+  .lock-icon-ring {
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+{# Barra mínima de navegación #}
+<nav class="sticky top-0 z-50 flex items-center justify-between px-4 py-3"
+     style="background:rgba(13,11,30,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(42,37,80,.7);">
+  <a href="{% url 'novels:detail' novel.slug %}"
+     class="flex items-center gap-2 text-purple-300 hover:text-white text-sm font-medium transition-colors">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Volver al Portal
+  </a>
+  <span class="text-purple-400 text-sm hidden sm:block truncate max-w-xs">{{ novel.title }}</span>
+  <span class="w-24"></span>
+</nav>
+
+{# Contenido bloqueado #}
+<div class="min-h-screen flex flex-col items-center justify-center px-6 py-20 text-center"
+     style="background:radial-gradient(ellipse at 50% 40%, rgba(124,58,237,.12) 0%, transparent 65%), #0D0B1E;">
+
+  {# Ícono de candado #}
+  <div class="lock-icon-ring w-24 h-24 rounded-full flex items-center justify-center mb-8"
+       style="background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(79,70,229,.2));
+              border:2px solid rgba(124,58,237,.5);">
+    <svg class="w-11 h-11 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0
+               002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+    </svg>
+  </div>
+
+  {# Etiqueta #}
+  <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full mb-5"
+        style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.45);color:#C4B5FD;">
+    🔒 Capítulo Exclusivo para Seguidores
+  </span>
+
+  <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
+    Capítulo {{ chapter.order }}: {{ chapter.title }}
+  </h1>
+  <p class="text-purple-300 text-base max-w-md leading-relaxed mb-2">
+    El autor <a href="{% url 'accounts:author_profile' novel.author.username %}"
+                class="text-white font-semibold hover:underline">{{ novel.author.username }}</a>
+    ha reservado este capítulo exclusivamente para sus seguidores.
+  </p>
+  <p class="text-purple-500 text-sm mb-10">
+    Sigue al autor para desbloquear acceso instantáneo a este y futuros capítulos exclusivos.
+  </p>
+
+  {# CTA principal #}
+  {% if user.is_authenticated %}
+    {% if not is_following %}
+    <div id="follow-cta-container">
+      <button hx-post="{% url 'reading:toggle_follow' novel.author.username %}"
+              hx-target="#follow-cta-container"
+              hx-swap="outerHTML"
+              id="btn-seguir-desbloquear"
+              class="inline-flex items-center gap-3 font-bold text-white px-8 py-4 rounded-full text-base transition-all hover:scale-105 glow-brand"
+              style="background:linear-gradient(135deg,#7C3AED,#4F46E5);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6
+                   6 0 0112 0v1H3v-1z"/>
+        </svg>
+        Seguir a {{ novel.author.username }} y Desbloquear
+      </button>
+    </div>
+    {% else %}
+    {# Ya sigue — algo raro pasó (raza): recargar #}
+    <a href="{% url 'chapters:read' novel.slug chapter.order %}"
+       id="btn-reintentar-acceso"
+       class="inline-flex items-center gap-2 font-bold text-white px-8 py-4 rounded-full text-base glow-brand transition-all hover:scale-105"
+       style="background:#7C3AED;">
+      Ya sigo este autor — Reintentar acceso
+    </a>
+    {% endif %}
+  {% else %}
+  <a href="{% url 'accounts:register' %}"
+     id="btn-registrarse-para-leer"
+     class="inline-flex items-center gap-3 font-bold text-white px-8 py-4 rounded-full text-base glow-brand transition-all hover:scale-105"
+     style="background:linear-gradient(135deg,#7C3AED,#4F46E5);">
+    ✨ Crear cuenta gratis para leer
+  </a>
+  <p class="text-purple-600 text-xs mt-3">
+    ¿Ya tienes cuenta?
+    <a href="{% url 'accounts:login' %}" class="text-brand hover:text-brand-light">Inicia sesión</a>
+  </p>
+  {% endif %}
+
+  {# Card de la novela #}
+  <div class="mt-14 glass rounded-2xl p-5 flex items-center gap-5 max-w-sm w-full text-left"
+       style="border:1px solid rgba(124,58,237,.25);">
+    <div class="w-14 flex-shrink-0">
+      {% if novel.cover_image %}
+        <img src="{{ novel.cover_image.url }}" alt="{{ novel.title }}"
+             class="w-full aspect-[2/3] rounded-lg object-cover">
+      {% else %}
+        <div class="w-full aspect-[2/3] rounded-lg flex items-center justify-center"
+             style="background:linear-gradient(135deg,#1e1040,#0d0b1e);border:1px solid rgba(124,58,237,.3);">
+          <span class="text-2xl">📚</span>
+        </div>
+      {% endif %}
+    </div>
+    <div class="min-w-0">
+      <p class="text-white font-bold text-sm truncate">{{ novel.title }}</p>
+      <p class="text-purple-400 text-xs mt-0.5">por {{ novel.author.username }}</p>
+      <a href="{% url 'novels:detail' novel.slug %}"
+         class="text-xs text-brand hover:text-brand-light font-semibold mt-2 inline-block transition-colors">
+        Ver portal de la novela →
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+<footer class="border-t border-surface-border mt-16 py-10 px-6"
+        style="background: rgba(13,11,30,.95); border-color: rgba(42,37,80,.8);">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+
+            {# Brand #}
+            <div class="text-center md:text-left">
+                <span class="text-xl font-extrabold text-white">
+                    Novel<span class="text-brand">atam</span>
+                </span>
+                <p class="text-xs text-purple-400 mt-1">Tu portal de novelas en español</p>
+            </div>
+
+            {# Links #}
+            <div class="flex flex-wrap justify-center gap-6 text-sm text-purple-300">
+                <a href="{% url 'novels:list' %}" class="hover:text-white transition-colors">Explorar</a>
+                <a href="{% url 'novels:create' %}" class="hover:text-white transition-colors">Publicar obra</a>
+                <a href="#" class="hover:text-white transition-colors">Términos de uso</a>
+                <a href="#" class="hover:text-white transition-colors">Privacidad</a>
+            </div>
+
+            {# Copyright #}
+            <p class="text-xs text-purple-500 text-center md:text-right">
+                &copy; {% now "Y" %} Novelatam.<br>
+                Hecho para isekai, fantasía y aventuras.
+            </p>
+        </div>
+    </div>
+</footer>

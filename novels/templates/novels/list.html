@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Novelatam — Explora novelas de isekai, fantasía y aventura{% endblock %}
+{% block meta_description %}Descubre miles de novelas de isekai, LitRPG, fantasía juvenil y aventura en Novelatam. Lee gratis, publica tu obra y conecta con la comunidad.{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Efecto clip de gradiente robusto para navegadores webkit */
+    .hero-gradient-text {
+        background: linear-gradient(90deg, #C4B5FD, #A78BFA, #7C3AED, #4F46E5);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textShine 4s linear infinite;
+    }
+    @keyframes textShine {
+        to { background-position: 200% center; }
+    }
+
+    /* Animaciones 3D de portadas flotantes */
+    .float-container {
+        perspective: 1000px;
+        transform-style: preserve-3d;
+    }
+    .float-card {
+        animation: floatY 6s ease-in-out infinite;
+        box-shadow: 0 25px 50px -12px rgba(124,58,237,0.5);
+    }
+    .float-card-2 {
+        animation: floatY 8s ease-in-out infinite reverse;
+        box-shadow: 0 25px 50px -12px rgba(79,70,229,0.5);
+    }
+    @keyframes floatY {
+        0%, 100% { transform: translateY(0) rotateX(15deg) rotateY(-15deg); }
+        50% { transform: translateY(-20px) rotateX(10deg) rotateY(-10deg); }
+    }
+
+    /* Tarjetas del catálogo: Reveal on Hover */
+    .catalog-card {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    }
+    .catalog-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(124, 58, 237, 0.4);
+    }
+    .catalog-overlay {
+        background: linear-gradient(to top, rgba(13,11,30,0.95) 0%, rgba(13,11,30,0.8) 50%, transparent 100%);
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .catalog-card:hover .catalog-overlay {
+        transform: translateY(0);
+    }
+
+    /* Animaciones de entrada por scroll */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Scroll horizontal oculto para filtros */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════
+   HERO BANNER - PANTALLA PRINCIPAL
+════════════════════════════════════════ -->
+<section id="hero" class="relative w-full overflow-hidden rounded-[2rem] mx-auto max-w-[95%] mt-6 mb-16 fade-up"
+         style="min-height: 520px; border: 1px solid rgba(124,58,237,0.2);">
+
+    {# Fondo oscuro galáctico #}
+    <div class="absolute inset-0 w-full h-full"
+         style="background: radial-gradient(circle at top right, #1f123d 0%, #0d0b1e 40%, #080614 100%);"></div>
+
+    {# Auroras de luz #}
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div class="absolute w-[500px] h-[500px] rounded-full opacity-30 blur-[100px] mix-blend-screen"
+             style="background: #7C3AED; top: -10%; left: -10%;"></div>
+        <div class="absolute w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] mix-blend-screen"
+             style="background: #4F46E5; bottom: -20%; right: -10%;"></div>
+    </div>
+
+    <div class="relative z-10 flex flex-col lg:flex-row items-center justify-between h-full px-8 md:px-16 py-20 gap-12 max-w-7xl mx-auto">
+        
+        {# Text Content #}
+        <div class="flex-1 max-w-2xl text-center lg:text-left">
+            <span class="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase px-4 py-1.5 rounded-full mb-6"
+                  style="background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.3); color:#C4B5FD;">
+                <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+                Bienvenido al futuro de la lectura
+            </span>
+
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6">
+                Tu próxima <br/>
+                <span class="hero-gradient-text">aventura literaria</span>
+            </h1>
+
+            <p class="text-purple-200 text-lg md:text-xl mb-10 leading-relaxed font-light">
+                Descubre miles de mundos en nuestras novelas de <strong class="text-white font-semibold">isekai, fantasía y LitRPG</strong>. Lee sin límites o publica tu propia saga.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <a href="#novels-grid"
+                   class="w-full sm:w-auto bg-brand hover:bg-brand-light text-white font-black px-8 py-4 rounded-2xl glow-brand transition-all duration-300 hover:-translate-y-1 text-lg">
+                    Empezar a leer
+                </a>
+                <a href="{% if user.is_authenticated %}{% url 'novels:create' %}{% else %}{% url 'accounts:register' %}{% endif %}"
+                   class="w-full sm:w-auto font-bold px-8 py-4 rounded-2xl text-purple-200 hover:text-white transition-all duration-300 hover:bg-white/5 border border-purple-500/30 text-lg group">
+                    Publicar mi obra <span class="inline-block transition-transform group-hover:translate-x-1">→</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center justify-center lg:justify-start gap-8 mt-12 pt-8 border-t border-purple-500/20">
+                <div class="text-left">
+                    <p class="text-3xl font-black text-white">10K+</p>
+                    <p class="text-sm font-medium text-purple-400">Novelas</p>
+                </div>
+                <div class="w-px h-12 bg-purple-500/20"></div>
+                <div class="text-left">
+                    <p class="text-3xl font-black text-white">500K+</p>
+                    <p class="text-sm font-medium text-purple-400">Lectores</p>
+                </div>
+            </div>
+        </div>
+
+        {# 3D Floating Covers Showcase (Tendencias) #}
+        <div class="hidden lg:flex flex-1 justify-center items-center float-container h-[400px]">
+            {% if top_novels|length >= 2 %}
+            <div class="relative w-full h-full flex justify-center items-center">
+                {# Cover 1 (Atrás/Derecha) #}
+                <div class="absolute right-10 top-10 w-48 aspect-[2/3] rounded-2xl overflow-hidden float-card-2 border-2 border-purple-500/30">
+                    {% if top_novels.1.cover_image %}
+                        <img src="{{ top_novels.1.cover_image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-[#13112A] flex items-center justify-center text-4xl">📚</div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                        <span class="text-white font-bold text-sm truncate">{{ top_novels.1.title }}</span>
+                    </div>
+                </div>
+                
+                {# Cover 0 (Frente/Centro) #}
+                <div class="absolute left-1/2 -translate-x-1/2 z-10 w-64 aspect-[2/3] rounded-2xl overflow-hidden float-card border-2 border-brand/50">
+                    {% if top_novels.0.cover_image %}
+                        <img src="{{ top_novels.0.cover_image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-[#13112A] flex items-center justify-center text-5xl">👑</div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0D0B1E] via-transparent to-transparent flex flex-col justify-end p-5">
+                        <span class="bg-yellow-500 text-black text-[10px] font-black uppercase px-2 py-0.5 rounded w-fit mb-1">#1 Tendencia</span>
+                        <span class="text-white font-black text-lg leading-tight">{{ top_novels.0.title }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════════
+   TAB BAR DE GÉNEROS (Filtros)
+════════════════════════════════════════ -->
+<section id="genre-filters" class="max-w-7xl mx-auto px-4 mb-12 fade-up" style="transition-delay: 0.1s;">
+    
+    <div class="flex items-center gap-4 text-white font-bold text-lg mb-4">
+        <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+        Explorar por Género
+    </div>
+
+    <div class="flex overflow-x-auto hide-scrollbar gap-3 pb-4">
+        <a href="{% url 'novels:list' %}"
+           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if not genero_actual %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+            🌟 Todos
+        </a>
+        <a href="?genero=isekai"
+           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'isekai' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+            🌀 Isekai
+        </a>
+        <a href="?genero=litrpg"
+           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'litrpg' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+            ⚔️ LitRPG
+        </a>
+        <a href="?genero=fantasy_ya"
+           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'fantasy_ya' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+            🧙 Fantasía Juvenil
+        </a>
+        <a href="?genero=adventure"
+           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'adventure' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+            🗺️ Aventura
+        </a>
+        <a href="?genero=light_novel"
+           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'light_novel' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+            📖 Novela Ligera
+        </a>
+    </div>
+</section>
+
+<!-- ════════════════════════════════════════
+   GRID DE NOVELAS (CATÁLOGO IMPRESIONANTE)
+════════════════════════════════════════ -->
+<section id="novels-grid" class="max-w-7xl mx-auto px-4 pb-20 fade-up" style="transition-delay: 0.2s;">
+
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-black text-white tracking-tight">
+            {% if genero_actual %}
+                Catálogo: <span class="text-brand-light">{{ genero_actual|capfirst }}</span>
+            {% else %}
+                Nuevos Lanzamientos y Catálogo
+            {% endif %}
+        </h2>
+    </div>
+
+    {% if novels %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        {% for novel in novels %}
+        <a href="{% url 'novels:detail' novel.slug %}"
+           class="catalog-card relative group rounded-2xl overflow-hidden bg-surface-card border border-surface-border">
+           
+            {# Imagen de Portada #}
+            <div class="aspect-[2/3] w-full relative">
+                {% if novel.cover_image %}
+                    <img src="{{ novel.cover_image.url }}" alt="{{ novel.title }}" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand/20 to-surface-card">
+                        <span class="text-5xl opacity-40">📚</span>
+                    </div>
+                {% endif %}
+                
+                {# Badge top-left #}
+                <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-sm border border-white/10 text-white text-[10px] font-black uppercase px-2 py-1 rounded-lg">
+                    {{ novel.get_genre_display }}
+                </div>
+            </div>
+
+            {# Hover Overlay (Aparece al deslizar) #}
+            <div class="catalog-overlay absolute inset-0 flex flex-col justify-end p-5">
+                <h3 class="text-white font-black text-lg leading-tight mb-1">{{ novel.title }}</h3>
+                <p class="text-brand-light text-xs font-bold mb-3">Por {{ novel.author.username }}</p>
+                
+                <p class="text-purple-200 text-xs line-clamp-3 mb-4 leading-relaxed font-light">
+                    {{ novel.synopsis|default:"No hay sinopsis disponible." }}
+                </p>
+
+                <div class="flex items-center justify-between text-xs font-bold text-white mt-auto pt-3 border-t border-white/10">
+                    <span class="flex items-center gap-1"><span class="text-yellow-400">★</span> 4.8</span>
+                    <span class="flex items-center gap-1 text-purple-300">📖 {{ novel.chapters.count }} caps</span>
+                </div>
+            </div>
+            
+        </a>
+        {% endfor %}
+    </div>
+
+    {# Controles de Paginación #}
+    {% if page_obj.has_other_pages %}
+    <div class="flex justify-center mt-16">
+        <div class="flex items-center gap-3 glass px-3 py-2 rounded-2xl">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if genero_actual %}&genero={{ genero_actual }}{% endif %}" 
+                   class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-border text-white hover:bg-brand transition-colors font-bold">←</a>
+            {% else %}
+                <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-nav/50 text-purple-600/50 cursor-not-allowed font-bold">←</span>
+            {% endif %}
+
+            <span class="text-sm font-black text-purple-200 px-4">
+                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if genero_actual %}&genero={{ genero_actual }}{% endif %}" 
+                   class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-border text-white hover:bg-brand transition-colors font-bold">→</a>
+            {% else %}
+                <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-nav/50 text-purple-600/50 cursor-not-allowed font-bold">→</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    {# Estado Vacío Impresionante #}
+    <div class="flex flex-col items-center justify-center py-28 text-center glass rounded-3xl border border-brand/20">
+        <div class="text-7xl mb-6 opacity-80 filter drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]">🌌</div>
+        <h3 class="text-2xl font-black text-white mb-3">El universo está vacío</h3>
+        <p class="text-purple-300 text-base mb-8 max-w-md font-light">
+            Aún no hay novelas publicadas en esta categoría. ¡Sé el pionero y comienza a escribir el primer capítulo de esta nueva era!
+        </p>
+        <a href="{% url 'novels:create' %}" class="bg-brand hover:bg-brand-light text-white font-black px-8 py-4 rounded-2xl glow-brand transition-all duration-300 hover:-translate-y-1">
+            ✍️ Publicar mi primera novela
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Intersection Observer para las animaciones "fade-up" al hacer scroll
+    document.addEventListener("DOMContentLoaded", function() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // Opcional: Descomentar la siguiente línea si quieres que solo se anime una vez
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1, // Activa la animación cuando el 10% del elemento es visible
+            rootMargin: "0px 0px -50px 0px"
+        });
+
+        document.querySelectorAll('.fade-up').forEach(el => {
+            observer.observe(el);
+        });
+    });
+</script>
+{% endblock %}

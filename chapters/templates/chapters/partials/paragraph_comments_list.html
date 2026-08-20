@@ -1,0 +1,79 @@
+{# Texto del párrafo como contexto #}
+{% if paragraph_text %}
+    {% if paragraph_text|striptags|length > 1 %}
+        <div class="mb-6 p-4 rounded-xl bg-brand/10 border-l-2 border-brand relative select-none" style="-webkit-user-select: none; -ms-user-select: none; user-select: none;" oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;">
+            <svg class="absolute top-2 left-2 w-4 h-4 text-brand/40" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+            <p class="text-sm text-purple-200 italic pl-6">{{ paragraph_text|striptags }}</p>
+        </div>
+    {% elif '<img' in paragraph_text %}
+        <div class="mb-6 w-full rounded-xl overflow-hidden border border-brand/30 shadow-[0_10px_30px_rgba(124,58,237,0.2)] relative bg-black/40">
+            <div class="context-image-preview w-full flex justify-center">
+                {{ paragraph_text|safe }}
+            </div>
+        </div>
+        <style>
+            .context-image-preview img {
+                width: 100% !important;
+                height: auto !important;
+                max-height: 35rem !important; /* Muy grande */
+                object-fit: cover;
+                display: block;
+                border-radius: 0 !important;
+            }
+        </style>
+    {% else %}
+        <div class="mb-6 p-4 rounded-xl bg-brand/10 border-l-2 border-brand relative">
+            <p class="text-sm text-purple-200 italic pl-6">[Contenido]</p>
+        </div>
+    {% endif %}
+{% endif %}
+
+{# Formulario de nuevo comentario para este párrafo #}
+{% if user.is_authenticated %}
+<div class="glass rounded-2xl p-4 mb-6">
+    <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-full bg-brand flex items-center justify-center font-bold text-sm flex-shrink-0">
+            {{ user.username|first|upper }}
+        </div>
+        <form hx-post="{% url 'chapters:comment_create' chapter.id %}"
+              hx-target="#para-comments-list"
+              hx-swap="afterbegin"
+              hx-on::after-request="this.reset(); updateParaCount({{ paragraph_index }});"
+              class="flex-1 flex flex-col gap-3">
+            {% csrf_token %}
+            <input type="hidden" name="paragraph_index" value="{{ paragraph_index }}">
+            <textarea name="body"
+                      rows="3"
+                      maxlength="1000"
+                      placeholder="Escribe tu opinión sobre este párrafo..."
+                      required
+                      class="w-full bg-transparent resize-none text-sm text-purple-100 placeholder-purple-600 focus:outline-none"
+                      style="border-bottom:1px solid rgba(42,37,80,.8);padding-bottom:.5rem;"></textarea>
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="bg-brand hover:bg-brand-dark text-white text-xs font-bold px-4 py-2 rounded-full glow-brand transition-all duration-200 hover:scale-105">
+                    Comentar →
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="glass rounded-2xl p-4 mb-6 text-center">
+    <p class="text-purple-400 text-sm">
+        <a href="{% url 'accounts:login' %}" class="text-brand hover:text-brand-light font-semibold">Inicia sesión</a>
+        para dejar un comentario.
+    </p>
+</div>
+{% endif %}
+
+{# Lista de comentarios del párrafo #}
+<div id="para-comments-list" class="space-y-4">
+    {% for comment in comments %}
+        {% include "chapters/partials/comment_item.html" %}
+    {% empty %}
+        <p class="text-purple-500 text-sm text-center py-8" id="no-para-comments-msg">
+            Nadie ha comentado este párrafo aún. ¡Sé el primero!
+        </p>
+    {% endfor %}
+</div>

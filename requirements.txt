@@ -1,0 +1,10 @@
+# --- Base ---
+Django>=5.0,<6.0
+python-decouple==3.8        # cargar variables de entorno desde .env de forma limpia
+Pillow==10.4.0               # necesario para ImageField (portadas, avatares)
+
+# --- Producción (descomentar cuando despliegues en Railway/Render) ---
+# dj-database-url==2.2.0     # parsear DATABASE_URL de Postgres automáticamente
+# psycopg2-binary==2.9.9     # driver de PostgreSQL
+# gunicorn==22.0.0           # servidor WSGI para producción
+# whitenoise==6.7.0          # servir archivos estáticos sin depender de nginx/CDN al inicio

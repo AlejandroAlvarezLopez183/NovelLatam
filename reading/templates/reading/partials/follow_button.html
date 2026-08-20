@@ -1,0 +1,19 @@
+<div id="follow-btn-{{ author.id }}" class="flex items-center gap-3">
+    <button hx-post="{% url 'reading:toggle_follow' author.username %}"
+            hx-target="#follow-btn-{{ author.id }}"
+            hx-swap="outerHTML"
+            class="inline-flex items-center gap-2 font-bold px-5 py-2 rounded-full text-sm transition-all duration-200
+                   {% if is_following %}
+                   text-purple-300 hover:text-white hover:bg-red-500/20 hover:border-red-500/50
+                   {% else %}
+                   bg-brand hover:bg-brand-dark text-white glow-brand hover:scale-105
+                   {% endif %}"
+            style="{% if is_following %}border:1px solid rgba(124,58,237,.4);background:rgba(124,58,237,.1);{% endif %}">
+        {% if is_following %}
+            ✓ Siguiendo
+        {% else %}
+            + Seguir
+        {% endif %}
+    </button>
+</div>
+<span id="followers-count-number" hx-swap-oob="true" class="block text-2xl font-black text-white">{{ followers_count }}</span>

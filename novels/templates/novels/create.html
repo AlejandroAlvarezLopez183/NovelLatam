@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Publicar Nueva Novela — Novelatam{% endblock %}
+{% block meta_description %}Crea y publica tu novela en Novelatam.{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+    <div class="glass rounded-2xl p-8" style="border:1px solid rgba(42,37,80,.8);">
+        
+        <div class="mb-8 text-center">
+            <span class="text-4xl mb-4 block">📖</span>
+            <h1 class="text-3xl font-extrabold text-white mb-2">Publicar Nueva Novela</h1>
+            <p class="text-purple-300 text-sm">
+                Comienza tu nueva saga. Completa los detalles iniciales de tu obra.
+            </p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="p-4 mb-4 text-sm text-red-400 bg-red-900/20 rounded-lg border border-red-900/50">
+                    <p class="font-bold mb-1">Por favor corrige los siguientes errores:</p>
+                    <ul class="list-disc pl-5">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {# Título #}
+            <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-bold text-white mb-2">
+                    {{ form.title.label }}
+                </label>
+                {{ form.title }}
+                {% if form.title.help_text %}
+                <p class="mt-1 text-xs text-purple-500">{{ form.title.help_text }}</p>
+                {% endif %}
+            </div>
+
+            {# Sinopsis #}
+            <div>
+                <label for="{{ form.synopsis.id_for_label }}" class="block text-sm font-bold text-white mb-2">
+                    {{ form.synopsis.label }}
+                </label>
+                {{ form.synopsis }}
+                <p class="mt-1 text-xs text-purple-500">
+                    Una buena sinopsis atrae a los lectores. Describe el conflicto principal de tu historia.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {# Género #}
+                <div>
+                    <label for="{{ form.genre.id_for_label }}" class="block text-sm font-bold text-white mb-2">
+                        {{ form.genre.label }}
+                    </label>
+                    <div class="relative">
+                        {{ form.genre }}
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-purple-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                {# Rating #}
+                <div>
+                    <label for="{{ form.rating.id_for_label }}" class="block text-sm font-bold text-white mb-2">
+                        {{ form.rating.label }}
+                    </label>
+                    <div class="relative">
+                        {{ form.rating }}
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-purple-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Portada #}
+            <div>
+                <label for="{{ form.cover_image.id_for_label }}" class="block text-sm font-bold text-white mb-2">
+                    {{ form.cover_image.label }}
+                </label>
+                <div class="w-full text-white rounded-lg px-4 py-3 border border-dashed transition-colors"
+                     style="border-color: rgba(124,58,237,.4); background:rgba(13,11,30,.4);">
+                    {{ form.cover_image }}
+                </div>
+                <p class="mt-1 text-xs text-purple-500">
+                    Sube una imagen vertical (proporción 2:3). Si no tienes una, se generará un marcador de posición automático.
+                </p>
+            </div>
+
+            <hr style="border-color:rgba(42,37,80,.6);margin: 2rem 0;">
+
+            <div class="flex items-center justify-end gap-4">
+                <a href="{% url 'novels:home' %}" class="text-sm font-bold text-purple-400 hover:text-white transition-colors">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-brand hover:bg-brand-dark text-white font-bold px-8 py-3 rounded-xl glow-brand transition-all hover:scale-105">
+                    🚀 Crear Novela
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

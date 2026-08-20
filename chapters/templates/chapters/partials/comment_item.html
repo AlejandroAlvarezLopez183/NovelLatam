@@ -1,0 +1,133 @@
+<div class="comment-item comment-new glass rounded-xl p-4" id="comment-{{ comment.id }}">
+    <div class="flex items-start gap-3">
+
+        {# Avatar #}
+        <div class="w-9 h-9 rounded-full bg-brand flex items-center justify-center font-bold text-sm flex-shrink-0"
+             aria-label="Avatar de {{ comment.author.username }}">
+            {{ comment.author.username|first|upper }}
+        </div>
+
+        <div class="flex-1 min-w-0" x-data="{ replyOpen: false }">
+            {# Header: nombre + tiempo #}
+            <div class="flex items-center flex-wrap gap-2 mb-1.5">
+                <a href="{% url 'accounts:author_profile' comment.author.username %}"
+                   class="text-sm font-bold text-white hover:text-brand-light transition-colors">
+                    {{ comment.author.username }}
+                </a>
+                <span class="text-xs text-purple-500 ml-auto">
+                    Hace {{ comment.created_at|timesince }}
+                </span>
+            </div>
+
+            {# Cuerpo del comentario #}
+            <p class="text-sm text-purple-200 leading-relaxed mb-2">{{ comment.body }}</p>
+
+            {# Acciones: like + responder #}
+            <div class="flex items-center gap-4 mt-1">
+                {# Botón de like #}
+                {% if user.is_authenticated %}
+                    {% with is_liked=False %}
+                    <button hx-post="{% url 'comments:toggle_like' comment.id %}"
+                            hx-target="#like-btn-{{ comment.id }}"
+                            hx-swap="outerHTML"
+                            id="like-btn-{{ comment.id }}"
+                            class="flex items-center gap-1 text-xs text-purple-500 hover:text-red-400 transition-colors focus:outline-none"
+                            aria-label="Dar like">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        <span>{{ comment.likes_count }}</span>
+                    </button>
+                    {% endwith %}
+                {% else %}
+                    <span class="flex items-center gap-1 text-xs text-purple-600">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        {{ comment.likes_count }}
+                    </span>
+                {% endif %}
+
+                {# Botón de responder #}
+                {% if user.is_authenticated %}
+                <button @click="replyOpen = !replyOpen"
+                        class="text-xs text-purple-500 hover:text-brand-light transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                    </svg>
+                    Responder
+                </button>
+                {% endif %}
+
+                {# Botón de borrar comentario #}
+                {% if user == comment.author %}
+                <button hx-post="{% url 'comments:delete_comment' comment.id %}"
+                        hx-target="#comment-{{ comment.id }}"
+                        hx-swap="outerHTML"
+                        hx-confirm="¿Seguro que quieres eliminar este comentario?"
+                        class="text-xs text-red-500 hover:text-red-400 transition-colors flex items-center gap-1 ml-auto"
+                        aria-label="Eliminar comentario">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+                {% endif %}
+
+                {# Contador de respuestas #}
+                {% if comment.replies.count > 0 %}
+                <span class="text-xs text-purple-600">
+                    {{ comment.replies.count }} respuesta{{ comment.replies.count|pluralize:"s" }}
+                </span>
+                {% endif %}
+            </div>
+
+            {# Formulario de respuesta (inline, Alpine) #}
+            {% if user.is_authenticated %}
+            <div x-show="replyOpen" style="display:none;" class="mt-3">
+                <form hx-post="{% url 'chapters:comment_create' chapter.id %}"
+                      hx-target="#replies-{{ comment.id }}"
+                      hx-swap="beforeend"
+                      hx-on::after-request="this.reset(); replyOpen = false;"
+                      class="flex items-start gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                    <div class="w-7 h-7 rounded-full bg-brand flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="flex-1 flex gap-2">
+                        <textarea id="reply-input-{{ comment.id }}" name="body" rows="2" maxlength="500"
+                                  placeholder="Escribe tu respuesta..."
+                                  required
+                                  class="flex-1 bg-transparent resize-none text-xs text-purple-100 placeholder-purple-600 focus:outline-none rounded-lg px-3 py-2"
+                                  style="background:rgba(42,37,80,.3);border:1px solid rgba(42,37,80,.8);"></textarea>
+                        <button type="submit"
+                                class="bg-brand hover:bg-brand-dark text-white text-xs font-bold px-3 py-2 rounded-lg glow-brand transition-all self-end">
+                            ↵
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+            {# Sub-hilo de respuestas #}
+            {% if comment.replies.exists %}
+            <div id="replies-{{ comment.id }}" class="mt-3 space-y-2 pl-4"
+                 style="border-left:2px solid rgba(124,58,237,.2);">
+                {% for reply in comment.replies.all %}
+                    {% if not reply.is_hidden and reply.author_id not in blocked_ids %}
+                    {% include "chapters/partials/reply_item.html" with reply=reply %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div id="replies-{{ comment.id }}" class="mt-3 pl-4"
+                 style="border-left:2px solid rgba(124,58,237,.2); display:none;">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

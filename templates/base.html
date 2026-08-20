@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Novelatam — Tu plataforma de novelas{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Novelatam: descubre miles de novelas de isekai, fantasía juvenil, LitRPG y aventura. Lee, publica y conecta con autores.{% endblock %}">
+
+    {# --- Google Fonts --- #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {# --- Tailwind CSS (CDN para desarrollo) --- #}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Outfit', 'sans-serif'] },
+            colors: {
+              brand: {
+                DEFAULT: '#7C3AED',
+                light:   '#A78BFA',
+                dark:    '#5B21B6',
+                glow:    '#9F7AEA',
+              },
+              surface: {
+                DEFAULT: '#0D0B1E',
+                card:    '#13112A',
+                nav:     '#100E22',
+                border:  '#2A2550',
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+    {# --- HTMX --- #}
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+
+    {# --- Alpine.js --- #}
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {# CSRF token disponible para peticiones HTMX (POST/PUT/DELETE) #}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <style>
+      /* Scrollbar personalizada */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #0D0B1E; }
+      ::-webkit-scrollbar-thumb { background: #5B21B6; border-radius: 3px; }
+
+      /* Glow effects */
+      .glow-brand { box-shadow: 0 0 20px rgba(124,58,237,.4), 0 0 40px rgba(124,58,237,.15); }
+      .glow-text  { text-shadow: 0 0 20px rgba(167,139,250,.6); }
+
+      /* Glass card */
+      .glass {
+        background: rgba(19,17,42,.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(42,37,80,.8);
+      }
+
+      /* Smooth hover on cards */
+      .novel-card { transition: transform .25s ease, box-shadow .25s ease; }
+      .novel-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(124,58,237,.3); }
+
+      /* Hero gradient overlay */
+      .hero-overlay {
+        background: linear-gradient(
+          90deg,
+          rgba(13,11,30,.95) 0%,
+          rgba(13,11,30,.7)  50%,
+          rgba(13,11,30,.2)  100%
+        );
+      }
+
+      /* Active genre pill */
+      .pill-active { background: #7C3AED; color: #fff; box-shadow: 0 0 12px rgba(124,58,237,.5); }
+      .pill { background: rgba(42,37,80,.5); color: #C4B5FD; border: 1px solid rgba(124,58,237,.3); }
+      .pill:hover { background: rgba(124,58,237,.25); color: #fff; }
+
+      /* Animated underline for nav links */
+      .nav-link { position: relative; }
+      .nav-link::after {
+        content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px;
+        background: #7C3AED; transition: width .3s ease;
+      }
+      .nav-link:hover::after { width: 100%; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-surface text-white min-h-screen flex flex-col font-sans antialiased"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+    {% include "partials/navbar.html" %}
+
+    <main class="flex-1">
+        {% include "partials/messages.html" %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/footer.html" %}
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar Capítulo {{ chapter.order }} — {{ novel.title }} | Novelatam{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Ocultar la navbar global; este editor tiene su propia barra */
+  body > nav { display: none !important; }
+
+  /* ── Editor bar ── */
+  .editor-topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,11,30,.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(42,37,80,.8);
+  }
+
+  /* ── Toolbar de formato ── */
+  .fmt-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px;
+    color: #9B8EC4; cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+    font-size: .875rem; font-weight: 700;
+    border: none; background: transparent;
+  }
+  .fmt-btn:hover  { background: rgba(124,58,237,.2); color: #fff; }
+  .fmt-btn.active { background: rgba(124,58,237,.3); color: #C4B5FD; }
+
+  /* ── Área de título editable ── */
+  #editor-title {
+    font-size: 2rem; font-weight: 800; color: #fff;
+    outline: none; width: 100%;
+    background: transparent; border: none;
+    line-height: 1.2;
+  }
+  #editor-title:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(156,130,212,.35);
+    pointer-events: none;
+  }
+
+  /* ── Área de contenido ── */
+  #editor-content {
+    outline: none; min-height: 420px; color: #d4cfe8;
+    font-size: 1.0625rem; line-height: 1.9;
+    caret-color: #7C3AED;
+  }
+  #editor-content:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(156,130,212,.3);
+    pointer-events: none;
+  }
+  #editor-content p  { margin-bottom: .9rem; }
+  #editor-content h2 { font-size: 1.35rem; font-weight: 700; color: #fff; margin: 1.5rem 0 .75rem; }
+  #editor-content strong { color: #e2daff; }
+  #editor-content em     { color: #c4b5fd; }
+  #editor-content code {
+    background: rgba(124,58,237,.15); color: #a78bfa;
+    padding: .1rem .35rem; border-radius: 4px; font-size: .9em;
+  }
+  #editor-content a { color: #7C3AED; text-decoration: underline; }
+
+  /* ── Separador vertical ── */
+  .fmt-sep { width: 1px; height: 20px; background: rgba(42,37,80,.9); margin: 0 4px; }
+
+  /* ── Tag pill ── */
+  .tag-pill {
+    cursor: pointer; user-select: none;
+    padding: .25rem .75rem; border-radius: 999px; font-size: .75rem; font-weight: 600;
+    border: 1px solid rgba(42,37,80,.8); color: #7C6FAB;
+    transition: background .15s, color .15s, border-color .15s;
+    background: transparent;
+  }
+  .tag-pill.selected {
+    background: rgba(124,58,237,.25);
+    border-color: rgba(124,58,237,.6);
+    color: #C4B5FD;
+  }
+  .tag-pill:hover:not(.selected) { border-color: rgba(124,58,237,.35); color: #9B8EC4; }
+
+  /* ── Contador de palabras ── */
+  #word-count { font-variant-numeric: tabular-nums; }
+
+  /* ── Sidebar ── */
+  .sidebar-label {
+    font-size: .625rem; font-weight: 800;
+    letter-spacing: .1em; color: #6B5F9E; text-transform: uppercase;
+    margin-bottom: .5rem; display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════
+   BARRA SUPERIOR DEL EDITOR
+════════════════════════════════════════ -->
+<div class="editor-topbar px-4 py-3 flex items-center gap-4" id="editor-topbar">
+
+    {# Novela + N° cap #}
+    <div class="flex items-center gap-3 flex-shrink-0">
+        <span class="text-xs text-purple-500 font-medium">Novela:</span>
+        <div class="flex items-center gap-1 text-sm font-semibold text-white glass px-3 py-1.5 rounded-lg"
+             style="border:1px solid rgba(42,37,80,.8);">
+            {{ novel.title }}
+        </div>
+        <span class="text-xs text-purple-500">Editando:</span>
+        <span class="text-sm font-extrabold" style="color:#7C3AED;">Cap. {{ chapter.order }}</span>
+    </div>
+
+    {# Contador de palabras (centro) #}
+    <div class="flex-1 text-center hidden md:block">
+        <span class="text-xs text-purple-500">
+            Palabras: <span id="word-count" class="text-brand font-bold">0</span>
+            · <span id="read-time" class="text-purple-400">0 min lect.</span>
+        </span>
+    </div>
+
+    {# Botones de acción #}
+    <div class="flex items-center gap-2 flex-shrink-0">
+        {% if not chapter.is_published %}
+        <button type="button" id="btn-guardar-borrador"
+                onclick="submitForm('draft')"
+                class="px-4 py-2 text-sm font-semibold text-purple-300 hover:text-white rounded-xl transition-all"
+                style="border:1px solid rgba(42,37,80,.8);background:rgba(42,37,80,.3);">
+            Guardar Borrador
+        </button>
+        {% endif %}
+        <button type="button" id="btn-publicar-capitulo"
+                onclick="submitForm('publish')"
+                class="px-4 py-2 text-sm font-bold text-white rounded-xl glow-brand transition-all hover:scale-105"
+                style="background:#7C3AED;">
+            {% if chapter.is_published %}Guardar Cambios{% else %}Publicar Capítulo{% endif %}
+        </button>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════
+   CUERPO: Editor
+════════════════════════════════════════ -->
+<form id="chapter-form"
+      method="post"
+      action="{% url 'chapters:update' novel.slug chapter.order %}">
+    {% csrf_token %}
+    {# Campos ocultos que se llenan por JS antes del submit #}
+    <input type="hidden" name="action"  id="f-action">
+    <input type="hidden" name="title"   id="f-title">
+    <input type="hidden" name="content" id="f-content">
+
+    <div class="flex min-h-screen" style="background:#0D0B1E;">
+
+        {# ── ÁREA DE ESCRITURA ── #}
+        <main class="flex-1 px-6 md:px-16 py-10 max-w-3xl mx-auto w-full">
+
+            {# Toolbar de formato #}
+            <div class="flex items-center gap-1 mb-6 flex-wrap"
+                 style="border-bottom:1px solid rgba(42,37,80,.6);padding-bottom:.75rem;">
+                <button type="button" class="fmt-btn" onclick="fmt('bold')"        title="Negrita (Ctrl+B)"><b>B</b></button>
+                <button type="button" class="fmt-btn" onclick="fmt('italic')"      title="Cursiva (Ctrl+I)"><i>I</i></button>
+                <div class="fmt-sep"></div>
+                <button type="button" class="fmt-btn" onclick="fmtHeading()"       title="Encabezado">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M4 6h16M4 12h10M4 18h7"/>
+                    </svg>
+                </button>
+                <button type="button" class="fmt-btn" onclick="fmt('insertUnorderedList')" title="Lista">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                    </svg>
+                </button>
+                <div class="fmt-sep"></div>
+                <button type="button" class="fmt-btn" onclick="insertLink()"       title="Insertar enlace">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101
+                                 m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
+                </button>
+                <button type="button" class="fmt-btn" onclick="fmt('formatBlock', 'pre')" title="Bloque de código">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                    </svg>
+                </button>
+            </div>
+
+            {# Título del capítulo #}
+            <div id="editor-title"
+                 contenteditable="true"
+                 spellcheck="true"
+                 data-placeholder="Escribe el título del capítulo aquí..."
+                 class="mb-6"
+                 oninput="updateCount()">{{ chapter.title }}</div>
+
+            {# Contenido del capítulo #}
+            <div id="editor-content"
+                 contenteditable="true"
+                 spellcheck="true"
+                 data-placeholder="Comienza a escribir tu capítulo..."
+                 oninput="updateCount()">{{ chapter.content|safe }}</div>
+        </main>
+
+        {# ── SIDEBAR: Ajustes del Capítulo ── #}
+        <aside class="w-72 flex-shrink-0 border-l py-8 px-5 hidden lg:block"
+               style="border-color:rgba(42,37,80,.7);background:rgba(13,11,30,.7);">
+
+            <h2 class="text-sm font-bold text-white mb-6">Ajustes del Capítulo</h2>
+
+            {# Solo para seguidores #}
+            <div class="mb-6">
+                <span class="sidebar-label">Acceso al Capítulo</span>
+                <label for="followers-only-toggle"
+                       class="flex items-center justify-between cursor-pointer gap-3 p-3 rounded-xl transition-colors"
+                       style="border:1px solid rgba(42,37,80,.8);background:rgba(13,11,30,.5);"
+                       id="followers-only-label">
+                    <div>
+                        <p class="text-xs font-bold text-white">Solo para seguidores 🔒</p>
+                        <p class="text-xs text-purple-600 mt-0.5">Solo lectores que te sigan podrán leer este capítulo</p>
+                    </div>
+                    <div class="relative flex-shrink-0">
+                        <input type="checkbox"
+                               name="followers_only"
+                               id="followers-only-toggle"
+                               class="sr-only peer"
+                               {% if chapter.followers_only %}checked{% endif %}>
+                        <div class="w-10 h-6 rounded-full transition-colors peer-checked:bg-brand"
+                             style="background:rgba(42,37,80,.8);"></div>
+                        <div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4"></div>
+                    </div>
+                </label>
+            </div>
+
+            {# Mini-acciones rápidas #}
+            <div class="space-y-2 pt-4" style="border-top:1px solid rgba(42,37,80,.6);">
+                <a href="{% url 'novels:detail' novel.slug %}"
+                   class="flex items-center gap-2 text-xs text-purple-500 hover:text-purple-300 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Volver a la novela
+                </a>
+            </div>
+        </aside>
+    </div>
+</form>
+
+<script>
+// ── Formato del editor ──────────────────────────────────
+function fmt(cmd, value) {
+    document.getElementById('editor-content').focus();
+    document.execCommand(cmd, false, value || null);
+}
+
+function fmtHeading() {
+    document.getElementById('editor-content').focus();
+    document.execCommand('formatBlock', false, 'h2');
+}
+
+function insertLink() {
+    const url = prompt('URL del enlace:');
+    if (url) {
+        document.getElementById('editor-content').focus();
+        document.execCommand('createLink', false, url);
+    }
+}
+
+// ── Contador de palabras / tiempo de lectura ────────────
+function updateCount() {
+    const titleText   = document.getElementById('editor-title').innerText.trim();
+    const contentText = document.getElementById('editor-content').innerText.trim();
+    const full        = (titleText + ' ' + contentText).trim();
+    const words       = full ? full.split(/\s+/).length : 0;
+    const mins        = Math.max(1, Math.ceil(words / 250));
+
+    document.getElementById('word-count').textContent = words.toLocaleString('es-MX');
+    document.getElementById('read-time').textContent = mins + ' min lect.';
+}
+
+// ── Envío del formulario ────────────────────────────────
+function submitForm(action) {
+    const title   = document.getElementById('editor-title').innerText.trim();
+    const content = document.getElementById('editor-content').innerHTML.trim();
+
+    document.getElementById('f-action').value  = action;
+    document.getElementById('f-title').value   = title;
+    document.getElementById('f-content').value = content;
+
+    if (!title || !content) {
+        alert('El título y el contenido son obligatorios.');
+        return;
+    }
+
+    document.getElementById('chapter-form').submit();
+}
+
+// Iniciar contador
+updateCount();
+</script>
+
+{% endblock %}

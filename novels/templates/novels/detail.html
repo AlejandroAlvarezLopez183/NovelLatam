@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ novel.title }} — Novelatam{% endblock %}
+{% block meta_description %}{{ novel.synopsis|truncatechars:160 }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Barra de progreso animada */
+  @keyframes progressFill {
+    from { width: 0; }
+    to   { width: var(--progress); }
+  }
+  .progress-bar { animation: progressFill 1s ease-out forwards; }
+
+  /* Hover en filas de capítulos */
+  .chapter-row { transition: background .2s ease, padding-left .2s ease; }
+  .chapter-row:hover { background: rgba(124,58,237,.12); padding-left: 1.25rem; }
+
+  /* Badge de estado del capítulo */
+  .badge-leido    { background:rgba(34,197,94,.15);  color:#86efac; border:1px solid rgba(34,197,94,.3);  }
+  .badge-noleido  { background:rgba(124,58,237,.15); color:#c4b5fd; border:1px solid rgba(124,58,237,.3); }
+  .badge-nuevo    { background:rgba(251,191,36,.12); color:#fde68a; border:1px solid rgba(251,191,36,.25);}
+
+  /* Hero parallax hint */
+  .hero-bg { background-attachment: fixed; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════
+   HERO BANNER
+════════════════════════════════════════ -->
+<div class="relative w-full overflow-hidden" style="min-height:300px;">
+
+    {# Fondo degradado dramático #}
+    <div class="absolute inset-0"
+         style="background: linear-gradient(135deg,#0a0820 0%,#160b35 40%,#0d1628 80%,#0D0B1E 100%);">
+    </div>
+    {# Orbes de luz de ambiente #}
+    <div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div class="absolute w-80 h-80 rounded-full blur-3xl opacity-20"
+             style="background:#7C3AED;top:-40px;right:15%;"></div>
+        <div class="absolute w-64 h-64 rounded-full blur-3xl opacity-15"
+             style="background:#4F46E5;bottom:0;left:10%;"></div>
+    </div>
+
+    {# Contenido del hero: portada + título #}
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-10 flex items-end gap-8">
+
+        {# ── Portada ── #}
+        <div class="flex-shrink-0 w-28 md:w-36"
+             style="filter: drop-shadow(0 8px 32px rgba(124,58,237,.5));">
+            {% if novel.cover_image %}
+                <img src="{{ novel.cover_image.url }}"
+                     alt="Portada de {{ novel.title }}"
+                     class="w-full rounded-xl object-cover aspect-[2/3]">
+            {% else %}
+                <div class="w-full aspect-[2/3] rounded-xl flex flex-col items-center justify-center gap-2 text-center px-2"
+                     style="background:linear-gradient(135deg,#1e1040,#0d0b1e);border:1px solid rgba(124,58,237,.3);">
+                    <span class="text-3xl">📚</span>
+                    <p class="text-xs text-purple-400 font-medium leading-tight">{{ novel.title }}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {# ── Meta ── #}
+        <div class="flex-1 min-w-0">
+            {# Badges de género y clasificación #}
+            <div class="flex flex-wrap gap-2 mb-3">
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);color:#86efac;">
+                    EN PUBLICACIÓN
+                </span>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style="background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.45);color:#C4B5FD;">
+                    {{ novel.get_genre_display|upper }}
+                </span>
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#a5b4fc;">
+                    {{ novel.get_rating_display }}
+                </span>
+            </div>
+
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-2">
+                {{ novel.title }}
+            </h1>
+
+            <p class="text-purple-300 text-sm mb-3">
+                Por <a href="{% url 'accounts:author_profile' novel.author.username %}" class="text-white font-semibold hover:underline">{{ novel.author.username }}</a>
+            </p>
+
+            {# Rating y stats #}
+            <div class="flex flex-wrap items-center gap-4 text-sm">
+                <span class="flex items-center gap-1">
+                    <span class="text-yellow-400">★</span>
+                    <span class="text-yellow-300 font-semibold ml-1">{{ avg_rating|floatformat:1 }}</span>
+                    <span class="text-purple-500 text-xs">({{ reviews.count }} valoraciones)</span>
+                </span>
+                <span class="text-purple-400">
+                    📖 {{ chapters_count }} caps.
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════
+   BARRA DE PROGRESO + CTAs
+════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 py-4 glass"
+     style="border-top:1px solid rgba(42,37,80,.6);border-bottom:1px solid rgba(42,37,80,.6);">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+        {# Progreso de lectura (simulado — conectar con reading app en el futuro) #}
+        <div class="flex-1">
+            <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-purple-400 font-medium">TU PROGRESO DE LECTURA</span>
+                <span class="text-xs text-purple-300">
+                    0 / {{ chapters_count }} Caps.
+                </span>
+            </div>
+            <div class="h-1.5 rounded-full w-full" style="background:rgba(42,37,80,.8);">
+                <div class="progress-bar h-full rounded-full"
+                     style="--progress:0%;background:linear-gradient(90deg,#7C3AED,#A78BFA);width:0%;"></div>
+            </div>
+        </div>
+
+        {# Botones de acción #}
+        <div class="flex items-center gap-3 flex-shrink-0">
+            {% if chapters %}
+            <a href="#capitulos"
+               id="btn-comenzar-leer"
+               class="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white font-bold px-5 py-2.5 rounded-full glow-brand transition-all duration-200 hover:scale-105">
+                Comenzar a Leer 📖
+            </a>
+            {% else %}
+            <button disabled
+                    class="inline-flex items-center gap-2 text-white font-bold px-5 py-2.5 rounded-full opacity-40 cursor-not-allowed"
+                    style="background:#7C3AED;">
+                Comenzar a Leer 📖
+            </button>
+            {% endif %}
+
+            <div id="bookmark-button-container">
+                {% include 'reading/partials/bookmark_button.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════════════════════════
+   CUERPO PRINCIPAL: Sinopsis + Stats / Capítulos
+════════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    {# ── Columna izquierda (sinopsis + capítulos) ── #}
+    <div class="lg:col-span-2 space-y-8">
+
+        {# Sinopsis #}
+        <section id="sinopsis">
+            <h2 class="text-lg font-bold text-white mb-3">Sinopsis</h2>
+            <div class="text-purple-200 text-sm leading-relaxed space-y-3" id="sinopsis-texto">
+                {{ novel.synopsis|linebreaksbr }}
+            </div>
+            {# Expandir si la sinopsis es larga #}
+            {% if novel.synopsis|length > 400 %}
+            <button id="btn-sinopsis-toggle"
+                    onclick="toggleSinopsis()"
+                    class="mt-3 text-brand hover:text-brand-light text-sm font-semibold transition-colors">
+                Mostrar más ↓
+            </button>
+            <script>
+              let expanded = false;
+              function toggleSinopsis() {
+                const el  = document.getElementById('sinopsis-texto');
+                const btn = document.getElementById('btn-sinopsis-toggle');
+                expanded = !expanded;
+                el.style.maxHeight  = expanded ? 'none' : '4.5rem';
+                el.style.overflow   = expanded ? 'visible' : 'hidden';
+                btn.textContent     = expanded ? 'Mostrar menos ↑' : 'Mostrar más ↓';
+              }
+              // Truncar al inicio
+              const sinEl = document.getElementById('sinopsis-texto');
+              sinEl.style.maxHeight = '4.5rem';
+              sinEl.style.overflow  = 'hidden';
+            </script>
+            {% endif %}
+        </section>
+
+        {# Lista de capítulos #}
+        <section id="capitulos">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white">
+                    Capítulos Disponibles
+                    <span class="text-purple-400 font-normal text-base ml-1">
+                        ({{ chapters_count }})
+                    </span>
+                </h2>
+                <div class="flex items-center gap-4">
+                    {% if user == novel.author %}
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'chapters:create' novel.slug %}"
+                           class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full glow-brand text-white transition-all hover:scale-105"
+                           style="background:#7C3AED;">
+                            + Añadir Capítulo
+                        </a>
+                        <a href="{% url 'novels:update' novel.slug %}"
+                           class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-purple-300 transition-all hover:text-white"
+                           style="border:1px solid rgba(124,58,237,.4);background:rgba(42,37,80,.4);">
+                            ✏️ Editar Detalles
+                        </a>
+                    </div>
+                    {% endif %}
+                    <span class="text-xs text-purple-500">
+                        Ordenar por: <span class="text-purple-300 font-semibold cursor-pointer hover:text-white">
+                            Más recientes ↓
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="rounded-xl overflow-hidden"
+                 style="border:1px solid rgba(42,37,80,.8);">
+                {% for chapter in chapters %}
+                <a href="{% url 'chapters:read' novel.slug chapter.order %}"
+                   class="chapter-row flex items-center justify-between px-4 py-3.5 block"
+                   style="border-bottom:1px solid rgba(42,37,80,.5);"
+                   id="chapter-row-{{ chapter.order }}">
+                    <div class="flex items-center gap-3 min-w-0">
+                        {# Indicador de estado (punto de color) #}
+                        <div class="w-2 h-2 rounded-full flex-shrink-0"
+                             style="background:rgba(124,58,237,.6);"></div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-white truncate flex items-center gap-1.5">
+                                {% if not chapter.is_published %}
+                                <span class="bg-purple-900/40 text-purple-300 border border-purple-500/30 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider mr-1">Borrador</span>
+                                {% endif %}
+                                {% if chapter.followers_only %}
+                                <span title="Solo para seguidores" class="text-purple-400 flex-shrink-0">🔒</span>
+                                {% endif %}
+                                Cap. {{ chapter.order }}: {{ chapter.title }}
+                            </p>
+                            <p class="text-xs text-purple-500 mt-0.5">
+                                {{ chapter.content|wordcount }} palabras ·
+                                {{ chapter.created_at|timesince }} atrás
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        {% if user == novel.author %}
+                        <a href="{% url 'chapters:update' novel.slug chapter.order %}"
+                           class="text-xs font-bold text-purple-400 hover:text-white px-2 py-1 rounded transition-colors"
+                           style="background:rgba(124,58,237,.2); border:1px solid rgba(124,58,237,.4);">
+                            ✏️ Editar
+                        </a>
+                        {% endif %}
+                        {% if chapter.id in read_chapter_ids %}
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full badge-leido">
+                            ✓ Leído
+                        </span>
+                        {% else %}
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full badge-noleido">
+                            No Leído
+                        </span>
+                        {% endif %}
+                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center py-16 text-center">
+                    <span class="text-4xl mb-3 opacity-50">🖊️</span>
+                    <p class="text-purple-400 text-sm">Aún no hay capítulos publicados.</p>
+                    <p class="text-purple-600 text-xs mt-1">¡Vuelve pronto!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        {# ── Sección de Reseñas ── #}
+        <section id="resenas" class="mt-12 mb-12">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-white">
+                    Reseñas de Lectores
+                    <span class="text-purple-400 font-normal text-base ml-1">
+                        ({{ reviews.count }})
+                    </span>
+                </h2>
+            </div>
+
+            <div class="space-y-4">
+                {% if user.is_authenticated and review_form %}
+                <div class="glass p-5 rounded-xl border" style="border-color:rgba(124,58,237,.3);">
+                    <h3 class="text-white font-bold mb-3">Deja tu reseña</h3>
+                    <form method="post" action="{% url 'novels:detail' novel.slug %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="text-purple-300 text-xs font-semibold block mb-1">Calificación (1 a 5)</label>
+                            {{ review_form.rating }}
+                        </div>
+                        <div class="mb-3">
+                            {{ review_form.body }}
+                        </div>
+                        <button type="submit" name="submit_review" class="bg-brand text-white font-bold px-4 py-2 rounded-lg text-sm transition-all hover:bg-brand-dark">Publicar Reseña</button>
+                    </form>
+                </div>
+                {% elif user_review %}
+                <div id="review-{{ user_review.id }}" class="p-4 rounded-xl mb-4 relative" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);">
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="text-green-400 text-sm font-bold">Tu reseña ({{ user_review.rating }}★)</p>
+                        <button hx-post="{% url 'novels:delete_review' user_review.id %}"
+                                hx-target="#review-{{ user_review.id }}"
+                                hx-swap="outerHTML"
+                                hx-confirm="¿Seguro que quieres eliminar tu reseña?"
+                                class="text-xs text-red-500 hover:text-red-400 transition-colors"
+                                aria-label="Eliminar reseña">
+                            Eliminar
+                        </button>
+                    </div>
+                    <p class="text-white text-sm">{{ user_review.body }}</p>
+                </div>
+                {% endif %}
+
+                {% for review in reviews %}
+                <div id="review-list-{{ review.id }}" class="glass p-4 rounded-xl border border-transparent">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-surface-nav flex items-center justify-center text-purple-300 font-bold text-xs">{{ review.user.username|first|upper }}</div>
+                            <span class="text-white font-semibold text-sm">{{ review.user.username }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-yellow-400 text-sm">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                            <span class="text-xs text-purple-400 ml-2">{{ review.created_at|date:"d/m/Y" }}</span>
+                            {% if user == review.user %}
+                            <button hx-post="{% url 'novels:delete_review' review.id %}"
+                                    hx-target="#review-list-{{ review.id }}"
+                                    hx-swap="outerHTML"
+                                    hx-confirm="¿Seguro que quieres eliminar esta reseña?"
+                                    class="text-red-500 hover:text-red-400 ml-2" title="Eliminar">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="text-purple-200 text-sm leading-relaxed">{{ review.body }}</p>
+                </div>
+                {% empty %}
+                <div class="text-center py-8">
+                    <p class="text-purple-400 text-sm">Aún no hay reseñas. ¡Sé el primero en opinar!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    {# ── Sidebar derecho: Estadísticas ── #}
+    <aside class="space-y-6">
+
+        {# Estadísticas del portal #}
+        <div class="glass rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                Estadísticas del Portal
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-purple-400">Lecturas Totales</span>
+                    <span class="text-sm font-bold text-white">842.6K</span>
+                </div>
+                <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-purple-400">Palabras promedio</span>
+                    <span class="text-sm font-bold text-white">2.8k / cap</span>
+                </div>
+                <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-purple-400">Frecuencia de publicación</span>
+                    <span class="text-sm font-bold"
+                          style="color:#86efac;">Diaria</span>
+                </div>
+                <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-purple-400">Total de capítulos</span>
+                    <span class="text-sm font-bold text-white">{{ chapters_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        {# Tags / géneros relacionados #}
+        <div class="glass rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3">Género</h3>
+            <div class="flex flex-wrap gap-2">
+                <span class="pill text-xs px-3 py-1.5 rounded-full">{{ novel.get_genre_display }}</span>
+                <span class="pill text-xs px-3 py-1.5 rounded-full">{{ novel.get_rating_display }}</span>
+            </div>
+        </div>
+
+        {# Autor #}
+        <div class="glass rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Autor</h3>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-extrabold text-lg flex-shrink-0">
+                    {{ novel.author.username|first|upper }}
+                </div>
+                <div>
+                    <a href="{% url 'accounts:author_profile' novel.author.username %}" class="text-white font-semibold text-sm hover:underline block">{{ novel.author.username }}</a>
+                    <p class="text-purple-500 text-xs mt-0.5">Publicado el {{ novel.created_at|date:"d M Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        {# CTA para volver al explorador #}
+        <a href="{% url 'novels:list' %}" id="sidebar-explorar"
+           class="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-purple-300 hover:text-white transition-all duration-200"
+           style="border:1px solid rgba(42,37,80,.8);background:rgba(13,11,30,.4);">
+            ← Explorar más novelas
+        </a>
+    </aside>
+</div>
+
+{% endblock %}

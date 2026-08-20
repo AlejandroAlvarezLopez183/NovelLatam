@@ -1,0 +1,58 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Base de datos local (¡Nunca subir la DB real o de desarrollo!)
+db.sqlite3
+db.sqlite3-journal
+*.db
+
+# Archivos multimedia (Imágenes subidas por usuarios, portadas, etc)
+media/
+media_root/
+
+# Archivos estáticos generados
+staticfiles/
+static_root/
+
+# Variables de entorno y secretos
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+
+# Logs
+logs/
+*.log
+
+# Caches
+.cache/
+.pytest_cache/
+
+# Herramientas de edición (VSCode, IntelliJ, etc)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.directory
+
+# Sistema Operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
