@@ -8,10 +8,25 @@ class Novel(models.Model):
 
     class Genre(models.TextChoices):
         ISEKAI = 'isekai', 'Isekai'
+        FANTASY = 'fantasy', 'Fantasía'
         FANTASY_YA = 'fantasy_ya', 'Fantasía juvenil'
+        DARK_FANTASY = 'dark_fantasy', 'Fantasía oscura'
         LITRPG = 'litrpg', 'LitRPG / Progression'
+        SCIFI = 'scifi', 'Ciencia Ficción'
+        CYBERPUNK = 'cyberpunk', 'Cyberpunk'
+        APOCALYPSE = 'apocalypse', 'Post-Apocalíptico'
         ADVENTURE = 'adventure', 'Aventura'
+        ACTION = 'action', 'Acción'
+        MARTIAL_ARTS = 'martial_arts', 'Artes Marciales'
+        CULTIVATION = 'cultivation', 'Cultivo / Xianxia'
+        ROMANCE = 'romance', 'Romance'
+        SHOUJO = 'shoujo', 'Shōjo'
+        SLICE_OF_LIFE = 'slice_of_life', 'Slice of Life'
+        HORROR = 'horror', 'Horror'
+        MYSTERY = 'mystery', 'Misterio'
         LIGHT_NOVEL = 'light_novel', 'Novela ligera'
+        HISTORICAL = 'historical', 'Histórica'
+        COMEDY = 'comedy', 'Comedia'
 
     class Rating(models.TextChoices):
         ALL_AGES = 'all_ages', 'Todo público'

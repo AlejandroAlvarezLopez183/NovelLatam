@@ -1,4 +1,4 @@
-<nav class="bg-surface-nav border-b border-surface-border px-6 py-4 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md"
+<header class="bg-surface-nav border-b border-surface-border px-6 py-4 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md"
      style="background: rgba(16,14,34,.9); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(42,37,80,.8);">
 
     {# ── Logo ── #}
@@ -34,12 +34,12 @@
     </div>
 
     {# ── Links centrales ── #}
-    <div class="hidden md:flex items-center gap-6 text-sm font-medium text-purple-200">
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-purple-200" aria-label="Menú principal">
         <a href="{% url 'novels:list' %}" class="nav-link hover:text-white transition-colors" id="nav-explorar">Explorar</a>
         <a href="{% url 'novels:list' %}?genero=isekai" class="nav-link hover:text-white transition-colors" id="nav-generos">Géneros</a>
         <a href="{% url 'novels:ranking' %}" class="nav-link hover:text-white transition-colors" id="nav-ranking">Ranking</a>
         <a href="#" class="nav-link hover:text-white transition-colors" id="nav-comunidad">Comunidad</a>
-    </div>
+    </nav>
 
     {# ── Auth ── #}
     <div class="flex items-center gap-3 text-sm">
@@ -165,4 +165,4 @@
             </a>
         {% endif %}
     </div>
-</nav>
+</header>

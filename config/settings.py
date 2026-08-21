@@ -32,6 +32,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# En desarrollo, aceptar dominios de Cloudflare Tunnel automáticamente
+if DEBUG:
+    ALLOWED_HOSTS += ['.trycloudflare.com']
+    CSRF_TRUSTED_ORIGINS = ['https://*.trycloudflare.com']
+
 
 # Application definition
 

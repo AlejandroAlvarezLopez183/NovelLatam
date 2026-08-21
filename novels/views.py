@@ -217,6 +217,43 @@ def novel_detail(request, slug):
     elif chapters.exists():
         next_chapter_to_read = chapters.first()
 
+    # ── Métricas reales de la novela ──
+    from chapters.models import Chapter
+
+    # Total de palabras de todos los capítulos publicados
+    published_chapters = novel.chapters.filter(is_published=True)
+    total_words = sum(
+        len(ch.content.split()) for ch in published_chapters
+    ) if published_chapters.exists() else 0
+
+    # Palabras promedio por capítulo
+    pub_count = published_chapters.count()
+    avg_words = round(total_words / pub_count) if pub_count > 0 else 0
+
+    # Total de lecturas reales (registros de ReadingProgress sobre capítulos de esta novela)
+    total_reads = ReadingProgress.objects.filter(chapter__novel=novel).count()
+
+    # Frecuencia de publicación (basada en los últimos capítulos)
+    freq_label = 'Sin datos'
+    freq_color = '#9ca3af'
+    if pub_count >= 2:
+        first_ch = published_chapters.order_by('created_at').first()
+        last_ch  = published_chapters.order_by('created_at').last()
+        days_span = max((last_ch.created_at - first_ch.created_at).days, 1)
+        days_per_cap = days_span / (pub_count - 1)
+        if days_per_cap <= 1.5:
+            freq_label, freq_color = 'Diaria', '#86efac'
+        elif days_per_cap <= 4:
+            freq_label, freq_color = 'Cada 2-3 días', '#86efac'
+        elif days_per_cap <= 8:
+            freq_label, freq_color = 'Semanal', '#fde68a'
+        elif days_per_cap <= 20:
+            freq_label, freq_color = 'Quincenal', '#fbbf24'
+        else:
+            freq_label, freq_color = 'Irregular', '#f87171'
+    elif pub_count == 1:
+        freq_label, freq_color = 'Recién iniciada', '#c4b5fd'
+
     return render(request, 'novels/detail.html', {
         'novel': novel,
         'chapters': chapters,
@@ -228,6 +265,12 @@ def novel_detail(request, slug):
         'user_review': user_review,
         'next_chapter_to_read': next_chapter_to_read,
         'read_chapter_ids': read_chapter_ids,
+        # Métricas reales
+        'total_words': total_words,
+        'avg_words_per_chapter': avg_words,
+        'total_reads': total_reads,
+        'freq_label': freq_label,
+        'freq_color': freq_color,
     })
 
 

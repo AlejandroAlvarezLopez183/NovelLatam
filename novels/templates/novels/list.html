@@ -183,30 +183,37 @@
     </div>
 
     <div class="flex overflow-x-auto hide-scrollbar gap-3 pb-4">
+        {# Todos #}
         <a href="{% url 'novels:list' %}"
-           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if not genero_actual %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
+           class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if not genero_actual %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
             🌟 Todos
         </a>
-        <a href="?genero=isekai"
-           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'isekai' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
-            🌀 Isekai
-        </a>
-        <a href="?genero=litrpg"
-           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'litrpg' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
-            ⚔️ LitRPG
-        </a>
-        <a href="?genero=fantasy_ya"
-           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'fantasy_ya' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
-            🧙 Fantasía Juvenil
-        </a>
-        <a href="?genero=adventure"
-           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'adventure' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
-            🗺️ Aventura
-        </a>
-        <a href="?genero=light_novel"
-           class="flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-300 {% if genero_actual == 'light_novel' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">
-            📖 Novela Ligera
-        </a>
+        {# Fantasía #}
+        <a href="?genero=isekai"        class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'isekai' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🌀 Isekai</a>
+        <a href="?genero=fantasy"       class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'fantasy' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🔮 Fantasía</a>
+        <a href="?genero=fantasy_ya"    class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'fantasy_ya' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🧙 Fantasía Juvenil</a>
+        <a href="?genero=dark_fantasy"  class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'dark_fantasy' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🌑 Fantasía Oscura</a>
+        {# Sci-Fi #}
+        <a href="?genero=litrpg"        class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'litrpg' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">⚔️ LitRPG</a>
+        <a href="?genero=scifi"         class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'scifi' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🚀 Ciencia Ficción</a>
+        <a href="?genero=cyberpunk"     class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'cyberpunk' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🤖 Cyberpunk</a>
+        <a href="?genero=apocalypse"    class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'apocalypse' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">☢️ Post-Apocalíptico</a>
+        {# Acción #}
+        <a href="?genero=adventure"     class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'adventure' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🗺️ Aventura</a>
+        <a href="?genero=action"        class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'action' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">💥 Acción</a>
+        <a href="?genero=martial_arts"  class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'martial_arts' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🥋 Artes Marciales</a>
+        <a href="?genero=cultivation"   class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'cultivation' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">☯️ Cultivo / Xianxia</a>
+        {# Romance #}
+        <a href="?genero=romance"       class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'romance' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">💕 Romance</a>
+        <a href="?genero=shoujo"        class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'shoujo' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🌸 Shōjo</a>
+        <a href="?genero=slice_of_life" class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'slice_of_life' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">☕ Slice of Life</a>
+        {# Terror #}
+        <a href="?genero=horror"        class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'horror' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">👻 Horror</a>
+        <a href="?genero=mystery"       class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'mystery' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🔍 Misterio</a>
+        {# Otros #}
+        <a href="?genero=light_novel"   class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'light_novel' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">📖 Novela Ligera</a>
+        <a href="?genero=historical"    class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'historical' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">🏛️ Histórica</a>
+        <a href="?genero=comedy"        class="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 {% if genero_actual == 'comedy' %}bg-brand text-white shadow-[0_0_15px_rgba(124,58,237,0.4)]{% else %}glass text-purple-300 hover:text-white hover:bg-brand/20{% endif %}">😂 Comedia</a>
     </div>
 </section>
 

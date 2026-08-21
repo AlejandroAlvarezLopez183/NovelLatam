@@ -7,7 +7,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['avatar', 'bio', 'website', 'country']
+        fields = ['avatar', 'cover_photo', 'bio', 'website', 'country']
         widgets = {
             'bio': forms.Textarea(attrs={
                 'class': 'w-full text-purple-200 bg-transparent rounded-lg px-4 py-3 '
@@ -21,6 +21,11 @@ class UserProfileForm(forms.ModelForm):
                 'class': 'hidden',
                 'accept': 'image/*',
                 'id': 'avatar-input',
+            }),
+            'cover_photo': forms.FileInput(attrs={
+                'class': 'hidden',
+                'accept': 'image/*',
+                'id': 'cover-input',
             }),
             'website': forms.URLInput(attrs={
                 'class': 'w-full text-white bg-transparent rounded-lg px-4 py-3 '
@@ -36,6 +41,7 @@ class UserProfileForm(forms.ModelForm):
         }
         labels = {
             'avatar': 'Foto de perfil',
+            'cover_photo': 'Foto de portada',
             'bio': 'Biografía',
             'website': 'Sitio web / Redes sociales',
             'country': 'País de Residencia',

@@ -84,6 +84,43 @@
       </div>
     </div>
 
+    {# ── Portada ── #}
+    <div class="glass rounded-2xl p-6" style="border:1px solid rgba(124,58,237,.25);">
+      <label class="block text-sm font-bold text-white mb-4">Foto de Portada</label>
+
+      <div class="flex flex-col gap-4">
+        {# Vista previa #}
+        <div id="cover-preview"
+             class="w-full h-32 md:h-48 rounded-xl flex-shrink-0 flex items-center justify-center text-sm font-bold text-white/50 overflow-hidden bg-[#090715]"
+             style="border:1px dashed rgba(124,58,237,.3);">
+          {% if form.instance.cover_photo %}
+            <img src="{{ form.instance.cover_photo.url }}" alt="Cover" class="w-full h-full object-cover">
+          {% else %}
+            Sin foto de portada
+          {% endif %}
+        </div>
+
+        {# Zona de carga #}
+        <div class="w-full">
+          <label for="cover-input"
+                 class="avatar-drop-zone flex flex-col items-center justify-center gap-2 rounded-xl py-4 cursor-pointer"
+                 style="border:2px dashed rgba(124,58,237,.4);background:rgba(124,58,237,.05);">
+            <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0
+                       012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2
+                       0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span class="text-sm text-purple-400">
+              <span class="text-brand font-semibold">Cambiar portada</span>
+            </span>
+            <span class="text-xs text-purple-600">Recomendado: 1200x400 px</span>
+          </label>
+          {{ form.cover_photo }}
+        </div>
+      </div>
+    </div>
+
     {# ── Bio ── #}
     <div class="glass rounded-2xl p-6" style="border:1px solid rgba(124,58,237,.25);">
       <div class="flex items-center justify-between mb-2">
@@ -167,6 +204,22 @@
     };
     reader.readAsDataURL(file);
   });
+
+  // Vista previa de la portada
+  const coverInput = document.getElementById('cover-input');
+  const coverPreview = document.getElementById('cover-preview');
+
+  if (coverInput && coverPreview) {
+    coverInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        coverPreview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-full object-cover">`;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   // Contador de caracteres de la bio
   const bioField = document.querySelector('textarea[name="bio"]');

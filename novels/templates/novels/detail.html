@@ -32,7 +32,7 @@
 <!-- ════════════════════════════════════════
    HERO BANNER
 ════════════════════════════════════════ -->
-<div class="relative w-full overflow-hidden" style="min-height:300px;">
+<header class="relative w-full overflow-hidden" style="min-height:300px;">
 
     {# Fondo degradado dramático #}
     <div class="absolute inset-0"
@@ -104,7 +104,7 @@
             </div>
         </div>
     </div>
-</div>
+</header>
 
 <!-- ════════════════════════════════════════
    BARRA DE PROGRESO + CTAs
@@ -156,7 +156,7 @@
 <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
     {# ── Columna izquierda (sinopsis + capítulos) ── #}
-    <div class="lg:col-span-2 space-y-8">
+    <article class="lg:col-span-2 space-y-8">
 
         {# Sinopsis #}
         <section id="sinopsis">
@@ -357,36 +357,57 @@
                 {% endfor %}
             </div>
         </section>
-    </div>
+    </article>
 
     {# ── Sidebar derecho: Estadísticas ── #}
     <aside class="space-y-6">
 
-        {# Estadísticas del portal #}
+        {# Estadísticas #}
         <div class="glass rounded-2xl p-5">
             <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4">
-                Estadísticas del Portal
+                Estadísticas
             </h3>
             <div class="space-y-3">
                 <div class="flex justify-between items-center">
-                    <span class="text-sm text-purple-400">Lecturas Totales</span>
-                    <span class="text-sm font-bold text-white">842.6K</span>
+                    <span class="text-sm text-purple-400">Lecturas totales</span>
+                    <span class="text-sm font-bold text-white">
+                        {% if total_reads >= 1000000 %}
+                            {{ total_reads|floatformat:"-1" }}M
+                        {% elif total_reads >= 1000 %}
+                            {{ total_reads|floatformat:"-1" }}K
+                        {% else %}
+                            {{ total_reads }}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-purple-400">Total de palabras</span>
+                    <span class="text-sm font-bold text-white">
+                        {{ total_words }} <span class="text-purple-400 font-normal text-xs">palabras</span>
+                    </span>
                 </div>
                 <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-purple-400">Palabras promedio</span>
-                    <span class="text-sm font-bold text-white">2.8k / cap</span>
+                    <span class="text-sm font-bold text-white">
+                        {{ avg_words_per_chapter }} <span class="text-purple-400 font-normal text-xs">/ cap.</span>
+                    </span>
                 </div>
                 <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
                 <div class="flex justify-between items-center">
-                    <span class="text-sm text-purple-400">Frecuencia de publicación</span>
-                    <span class="text-sm font-bold"
-                          style="color:#86efac;">Diaria</span>
+                    <span class="text-sm text-purple-400">Frecuencia</span>
+                    <span class="text-sm font-bold" style="color:{{ freq_color }};">{{ freq_label }}</span>
                 </div>
                 <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-purple-400">Total de capítulos</span>
                     <span class="text-sm font-bold text-white">{{ chapters_count }}</span>
+                </div>
+                <div class="h-px" style="background:rgba(42,37,80,.8);"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-purple-400">Publicada el</span>
+                    <span class="text-sm font-bold text-white">{{ novel.created_at|date:"d M Y" }}</span>
                 </div>
             </div>
         </div>

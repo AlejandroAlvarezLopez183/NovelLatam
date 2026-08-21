@@ -48,6 +48,12 @@ class UserProfile(models.Model):
         null=True,
         help_text='Foto de perfil (recomendado: cuadrada, mínimo 200×200 px)',
     )
+    cover_photo = models.ImageField(
+        upload_to='covers/',
+        blank=True,
+        null=True,
+        help_text='Foto de portada para tu perfil (recomendado: 1200x400 px)',
+    )
     website = models.URLField(
         max_length=200,
         blank=True,
